@@ -6,6 +6,16 @@ Un userscript para mejorar la visualización de usuarios en los clusters de la i
 
 **Radiopatito 42** es un userscript que mejora la experiencia de visualización en la sección de clusters de la intranet de 42 (`meta.intra.42.fr/clusters`). Permite ver de forma ampliada las imágenes de perfil de todos los estudiantes conectados en los clusters, junto con información útil como su login y el ordenador que están utilizando.
 
+## ⚠️ Disclaimer
+
+**Este userscript contiene bromas internas, emojis excesivos y algunas faltas de ortografía intencionales** que forman parte del humor entre mi grupo de amigos de 42. Lo comparto porque funciona bastante bien y puede ser útil para otros estudiantes.
+
+**¿Quieres eliminarlo?** Si prefieres una versión más seria, sin bromas o en otro idioma, ve directamente a la sección **[🌍 Personalización e internacionalización](#-personalización-e-internacionalización)** donde se explica cómo cambiar todos los textos de la interfaz.
+
+**Créditos**: Este userscript empezó un día de aburrimiento con Claude Sonnet 4 de Claude.ai y poco a poco se ha ido puliendo y mejorando.
+
+---
+
 ### ✨ Características
 
 - 🔍 **Imágenes ampliadas**: Visualiza las fotos de perfil 15 veces más grandes que el tamaño original
