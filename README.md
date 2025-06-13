@@ -30,7 +30,7 @@ Compatibilidad conocida:
 ### Paso 2: Instalar el script
 
 1. Instala [Violentmonkey](https://violentmonkey.github.io/) en tu navegador
-2. Descarga el archivo `Radiopatito_42.user.js` desde este repositorio
+2. Descarga el archivo `Radiopatito_42` desde este repositorio
 3. Arrastra el archivo al dashboard de Violentmonkey o haz click en "Install" cuando se abra automáticamente
 
 ## 🎯 Uso
