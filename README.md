@@ -24,17 +24,27 @@ Un userscript para mejorar la visualización de usuarios en los clusters de la i
 ### Paso 1: Instalar un gestor de userscripts
 
 El script ha sido probado y **funciona correctamente** con:
-- ✅ **Violentmonkey** (Recomendado)
+- ✅ **Violentmonkey** (Recomendado para escritorio)
+- ✅ **Tampermonkey** (Solo firefox en escritorio)
 
-Compatibilidad conocida:
-- ⚠️ **Tampermonkey** (Solo firefox)
+### 📱 Compatibilidad móvil
+
+**Radiopatito 42** es compatible con la versión móvil de Chrome usando **Tampermonkey**.
+
+Compatibilidad adicional:
 - ❓ **Greasemonkey** (No probado)
+- ❓ **Violentmonkey** (No probado)
 
 ### Paso 2: Instalar el script
 
 1. Instala [Violentmonkey](https://violentmonkey.github.io/) en tu navegador
 2. Descarga el archivo `Radiopatito_42` desde este repositorio
 3. Arrastra el archivo al dashboard de Violentmonkey o haz click en "Install" cuando se abra automáticamente
+
+## 📸 Radiopatito en móvil!
+
+<img src="radiopatito_mobile.jpg" alt="Vista móvil de Radiopatito 42" width="200">
+*Radiopatito 42 funcionando en Chrome móvil con Tampermonkey*
 
 ## 🎯 Uso
 
@@ -137,10 +147,7 @@ El script proporciona:
 5. Abre un Pull Request
 
 ### Ideas para futuras mejoras
-- [ ] Filtros adicionales por campus
-- [ ] Modo oscuro/claro
-- [ ] Exportar lista de usuarios conectados
-- [ ] Historial de búsquedas
+
 - [ ] Notificaciones de usuarios favoritos
 
 ## 📝 Notas
@@ -155,7 +162,7 @@ El script proporciona:
 ## 🔧 Solución de problemas
 
 ### El script no funciona
-- Verifica que Violentmonkey esté instalado y habilitado
+- Verifica que Violentmonkey/Tampermonkey esté instalado y habilitado
 - Asegúrate de estar en la URL correcta: `https://meta.intra.42.fr/clusters*`
 - Comprueba la consola del navegador para errores
 
@@ -168,6 +175,11 @@ El script proporciona:
 - Asegúrate de escribir el username exacto
 - Recuerda que solo busca entre usuarios actualmente conectados
 - Verifica que el usuario esté realmente en algún cluster
+
+### Problemas en móvil
+- Asegúrate de usar Chrome con Tampermonkey instalado
+- Verifica que el script esté habilitado en Tampermonkey
+- Comprueba que estés accediendo desde la URL correcta de la intranet
 
 ## 📄 Licencia
 
