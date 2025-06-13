@@ -1,0 +1,148 @@
+// ==UserScript==
+// @name        Radiopatio 42
+// @namespace   Violentmonkey Scripts
+// @match       https://meta.intra.42.fr/clusters*
+// @grant       none
+// @version     42
+// @author      you
+// @description Boooooooooooooooooooooooored
+// ==/UserScript==
+
+console.log('Radiopatio 42 loaded!');
+
+setTimeout(() => {
+    // Create button
+    const btn = document.createElement('button');
+    btn.innerHTML = 'Lo mismo pero <span style="font-size: 22px;">grande</span>';
+    btn.style.cssText = `
+        position: fixed; bottom: 20px; right: 20px; z-index: 99999;
+        background: #474b54; border: 1px solid #666; border-radius: 10px; padding: 10px 15px;
+        color: #02807c; background-color: #D8636F; font-size: 14px; font-weight: bold;
+        cursor: pointer; box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    `;
+
+    btn.onclick = () => {
+        // Find images
+        const images = Array.from(document.querySelectorAll('image[*|href]')).map(img => ({
+            element: img,
+            href: img.getAttributeNS('http://www.w3.org/1999/xlink', 'href') ||
+                  img.getAttribute('xlink:href') || img.getAttribute('href'),
+            login: img.getAttribute('data-tooltip-login') || 'Unknown',
+            id: img.getAttribute('id') || 'No ID',
+            width: parseFloat(img.getAttribute('width')) || 50,
+            height: parseFloat(img.getAttribute('height')) || 50
+        })).filter(img => img.href?.trim());
+
+        if (!images.length) {
+            alert('No images found!');
+            return;
+        }
+
+        // Remove existing grid
+        document.getElementById('radiopatio-grid')?.remove();
+
+        // Create main container
+        const container = document.createElement('div');
+        container.id = 'radiopatio-grid';
+        container.style.cssText = `
+            position: fixed; top: 10px; left: 10px; right: 10px; bottom: 10px;
+            background: #474b54; border: 2px solid #666; border-radius: 10px;
+            padding: 30px 20px 10px 20px; z-index: 100000; overflow-y: auto;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        `;
+
+        // Create title
+        const title = document.createElement('div');
+        title.textContent = `Habemos ${images.length} 👨‍💻 patitos 👩‍💻`;
+        title.style.cssText = `
+            text-align: center; color: #ffffff; font-size: 18px; font-weight: bold;
+            margin: 0 0 8px 0; padding: 5px 0; transition: opacity 0.3s ease;
+        `;
+
+        // Create close button
+        const closeBtn = document.createElement('button');
+        closeBtn.textContent = '×';
+        closeBtn.onclick = () => {
+            container.remove();
+            closeBtn.remove();
+        };
+        closeBtn.style.cssText = `
+            position: fixed; top: 15px; right: 15px; z-index: 100002;
+            background: #D8636F; color: #02807c; border: none; border-radius: 50%;
+            width: 40px; height: 40px; font-size: 24px; font-weight: bold; cursor: pointer;
+        `;
+
+        // Hide title when scrolling
+        let isScrolling = false;
+        container.addEventListener('scroll', () => {
+            if (!isScrolling) {
+                isScrolling = true;
+                requestAnimationFrame(() => {
+                    title.style.opacity = container.scrollTop > 30 ? '0' : '1';
+                    isScrolling = false;
+                });
+            }
+        });
+
+        // Create image grid
+        const grid = document.createElement('div');
+        grid.style.cssText = `
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px; padding-top: 10px;
+        `;
+
+        // Add error handling for image loading
+        images.forEach(imgData => {
+            const { href, login, id, width, height } = imgData;
+
+            const card = document.createElement('div');
+            card.style.cssText = `
+                border: 1px solid #666; border-radius: 8px; padding: 15px;
+                text-align: center; background: #3a3e47; box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            `;
+
+            const link = document.createElement('a');
+            link.href = login !== 'Unknown' ? `https://profile-v3.intra.42.fr/users/${login}` : '#';
+            link.target = login !== 'Unknown' ? '_blank' : '_self';
+            link.style.cssText = `text-decoration: none; display: block; ${login === 'Unknown' ? 'pointer-events: none;' : ''}`;
+
+            const img = document.createElement('img');
+            img.src = href;
+            img.alt = `${login}'s profile image`;
+            img.style.cssText = `
+                width: ${width * 15}px; height: ${height * 15}px;
+                max-width: 600px; max-height: 600px; object-fit: contain;
+                border: 2px solid #666; border-radius: 4px; background: #2c2f36;
+            `;
+
+            img.onerror = () => {
+                img.style.display = 'none';
+                const error = document.createElement('div');
+                error.textContent = 'Image failed to load';
+                error.style.cssText = 'color: #ff6b6b; font-size: 14px; padding: 20px;';
+                link.appendChild(error);
+            };
+
+            const info = document.createElement('div');
+            info.style.cssText = 'margin-top: 10px; font-size: 12px; color: #cccccc;';
+            info.innerHTML = `
+                <strong style="font-size: 14px; color: #ffffff;">👉 ${login} 👈</strong><br>
+                <big>🖥️ ${id} 🖥️</big>
+            `;
+
+            link.appendChild(img);
+            card.appendChild(link);
+            card.appendChild(info);
+            grid.appendChild(card);
+        });
+
+        container.appendChild(title);
+        container.appendChild(grid);
+        document.body.appendChild(container);
+        document.body.appendChild(closeBtn);
+
+        console.log(`Radiopatio 42: Created grid with ${images.length} images`);
+    };
+
+    document.body.appendChild(btn);
+}, 1000);
