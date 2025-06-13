@@ -56,8 +56,8 @@ Compatibilidad conocida:
 Una vez abierta la vista ampliada, encontrarás tres botones de filtro en la parte superior:
 
 - **Todo 42**: Muestra todos los usuarios conectados (por defecto)
-- **Cluster A**: Filtra solo usuarios en estaciones que empiecen por "car" (ej: car13s1)
-- **Cluster B**: Filtra solo usuarios en estaciones que empiecen por "cbr" (ej: cbr13s1)
+- **Cluster A**: Filtra solo usuarios en estaciones que empiecen por "car" (ej: car1s1)
+- **Cluster B**: Filtra solo usuarios en estaciones que empiecen por "cbr" (ej: cbr1s1)
 
 El título se actualiza automáticamente para mostrar cuántos patitos hay en cada cluster.
 
