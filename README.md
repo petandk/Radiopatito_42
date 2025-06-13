@@ -31,8 +31,6 @@ Un userscript para mejorar la visualización de usuarios en los clusters de la i
 - ✅ **Violentmonkey** (Recomendado para escritorio)
 - ✅ **Tampermonkey** (Solo firefox en escritorio)
 - ❓ **Greasemonkey** (No probado)
-- 
-
 
 ### Paso 2: Instalar el script
 
