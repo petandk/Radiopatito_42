@@ -156,7 +156,7 @@ El buscador te permite encontrar patitos específicos:
 
 ### Sistema de textos configurables
 
-**Radiopatito 42** v42.5.1 incluye un sistema completo de textos configurables que permite:
+**Radiopatito 42** v42.4.2 incluye un sistema completo de textos configurables que permite:
 
 - **🔧 Personalización fácil**: Cambia cualquier texto del script
 - **🌍 Traducción simple**: Adapta el script a cualquier idioma
@@ -192,7 +192,7 @@ const TEXTS = {
 ### Características del código
 
 - **Namespace**: `Violentmonkey Scripts`
-- **Versión**: 42.5.1
+- **Versión**: 42.4.2
 - **Permisos requeridos**: 
   - `GM_setValue` (para guardar favoritos)
   - `GM_getValue` (para cargar favoritos)
@@ -214,7 +214,7 @@ const TEXTS = {
 - Optimizaciones de rendimiento (lazy loading, document fragments)
 - Gestión de memoria y cleanup de event listeners
 
-### Nuevas optimizaciones v42.5.1
+### Nuevas optimizaciones v42.4.2
 
 - **🏗️ Arquitectura mejorada**: Código reorganizado y más mantenible
 - **💾 Gestión de almacenamiento**: Sistema robusto de persistencia de datos
@@ -246,7 +246,7 @@ El script proporciona:
 - **Modal de búsqueda**: Diseño limpio y funcional
 - **Botones de acción**: Posicionamiento fijo para fácil acceso
 
-### Nuevos elementos de UI v42.5.1
+### Nuevos elementos de UI v42.4.2
 - **🎨 Hover effects**: Botones con animaciones al pasar el mouse
 - **🌈 Estados especiales**: Botón de favoritos con color distintivo
 - **📋 Modales mejorados**: Diseño consistente y accesible
