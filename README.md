@@ -27,17 +27,12 @@ Un userscript para mejorar la visualización de usuarios en los clusters de la i
 
 ### Paso 1: Instalar un gestor de userscripts
 
-El script ha sido probado y **funciona correctamente** con:
+### 🖥️ Compatibilidad PC
 - ✅ **Violentmonkey** (Recomendado para escritorio)
 - ✅ **Tampermonkey** (Solo firefox en escritorio)
-
-### 📱 Compatibilidad móvil
-
-**Radiopatito 42** es compatible con la versión móvil de Chrome usando **Tampermonkey**.
-
-Compatibilidad adicional:
 - ❓ **Greasemonkey** (No probado)
-- ❓ **Violentmonkey** (No probado)
+- 
+
 
 ### Paso 2: Instalar el script
 
@@ -47,8 +42,13 @@ Compatibilidad adicional:
 
 **⚠️ Permisos requeridos**: El script ahora requiere permisos de almacenamiento (`GM_setValue` y `GM_getValue`) para guardar favoritos.
 
-## 📸 Radiopatito en móvil!
+### 📱 Compatibilidad móvil
 
+**Radiopatito 42** es compatible con la versión móvil de Chrome usando **Tampermonkey**.
+
+Compatibilidad adicional:
+- ❓ **Greasemonkey** (No probado)
+- ❓ **Violentmonkey** (No probado)
 <img src="radiopatito_mobile.jpg" alt="Vista móvil de Radiopatito 42" width="200">
 *Radiopatito 42 funcionando en Chrome móvil con Tampermonkey*
 
