@@ -24,7 +24,7 @@ El script ha sido probado y **funciona correctamente** con:
 - ✅ **Violentmonkey** (Recomendado)
 
 Compatibilidad conocida:
-- ❌ **Tampermonkey** (No funciona)
+- ⚠️ **Tampermonkey** (Solo firefox)
 - ❓ **Greasemonkey** (No probado)
 
 ### Paso 2: Instalar el script
