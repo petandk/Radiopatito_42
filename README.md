@@ -48,11 +48,10 @@ Tienes dos opciones para instalar **Radiopatito 42**:
 
 #### 🌟 Opción A: Copiar y pegar el código (Recomendado)
 
-1. Instala [Violentmonkey](https://violentmonkey.github.io/) en tu navegador
+1. Instala [Violentmonkey](https://violentmonkey.github.io/) (u otro) en tu navegador
 2. Copia el código completo del userscript desde GitHub:
    - Ve al archivo `Radiopatito_42` en este repositorio
-   - Haz click en **"Raw"** para ver el código sin formato
-   - Selecciona todo el código (`Ctrl+A`) y cópialo (`Ctrl+C`)
+   - Haz click en **"copy raw file"** para copiar ver el código sin formato
 3. Abre el dashboard de Violentmonkey
 4. Haz click en **"+ Nuevo"** o **"New Script"**
 5. **Borra todo** el contenido que aparece por defecto
@@ -61,7 +60,7 @@ Tienes dos opciones para instalar **Radiopatito 42**:
 
 #### 📁 Opción B: Arrastrar archivo
 
-1. Instala [Violentmonkey](https://violentmonkey.github.io/) en tu navegador
+1. Instala [Violentmonkey](https://violentmonkey.github.io/) (u otro) en tu navegador
 2. Descarga el archivo `Radiopatito_42` desde este repositorio
 3. Arrastra el archivo al dashboard de Violentmonkey o haz click en "Install" cuando se abra automáticamente
 
