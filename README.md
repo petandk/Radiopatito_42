@@ -48,10 +48,11 @@ Tienes dos opciones para instalar **Radiopatito 42**:
 
 #### 🌟 Opción A: Copiar y pegar el código (Recomendado)
 
-1. Instala [Violentmonkey](https://violentmonkey.github.io/) (u otro) en tu navegador
+1. Instala [Violentmonkey](https://violentmonkey.github.io/) en tu navegador
 2. Copia el código completo del userscript desde GitHub:
-   - Ve al archivo <a href="./Radiopatito_42" target="_blank">`Radiopatito_42`</a> en este repositorio
-   - Haz click en **"copy raw file"** para copiar ver el código sin formato
+   - Ve al archivo <a href="./Radiopatito_42" target="_blank" rel="noopener noreferrer">`Radiopatito_42`</a> en este repositorio
+   - Haz click en **"Raw"** para ver el código sin formato
+   - Selecciona todo el código (`Ctrl+A`) y cópialo (`Ctrl+C`)
 3. Abre el dashboard de Violentmonkey
 4. Haz click en **"+ Nuevo"** o **"New Script"**
 5. **Borra todo** el contenido que aparece por defecto
@@ -60,8 +61,8 @@ Tienes dos opciones para instalar **Radiopatito 42**:
 
 #### 📁 Opción B: Arrastrar archivo
 
-1. Instala [Violentmonkey](https://violentmonkey.github.io/) (u otro) en tu navegador
-2. Descarga el archivo <a href="./Radiopatito_42" target="_blank">`Radiopatito_42`</a> desde este repositorio
+1. Instala [Violentmonkey](https://violentmonkey.github.io/) en tu navegador
+2. Descarga el archivo <a href="./Radiopatito_42" target="_blank" rel="noopener noreferrer">`Radiopatito_42`</a> desde este repositorio
 3. Arrastra el archivo al dashboard de Violentmonkey o haz click en "Install" cuando se abra automáticamente
 
 ### Paso 3: Activar el script
@@ -128,3 +129,259 @@ Los usuarios favoritos pueden aparecer en dos estados:
 
 2. **💤 Offline (Desconectado)**:
    - Imagen aleatoria de [Picsum](https://picsum.photos/)
+   - Estilo visual diferenciado (bordes rosas, opacidad reducida)
+   - Texto "🔌 Offline" en lugar del ID del ordenador
+   - Mensaje "❤️‍🔥 Tu pana está offline ❤️‍🔥"
+
+#### ➕ Añadir favoritos
+
+1. **Acceso**: Click en "❤️‍🔥 Los panas ❤️‍🔥" → "➕ Añadir pana"
+2. **Formulario**: Escribe el username exacto del usuario
+3. **Métodos de añadir**:
+   - Click en "❤️ Añadir a los panas ❤️"
+   - Presiona Enter
+4. **Validaciones**:
+   - Previene duplicados automáticamente
+   - Valida campos vacíos
+   - Feedback visual inmediato
+
+#### 💔 Gestión de divorcios
+
+1. **Acceso**: Click en "❤️‍🔥 Los panas ❤️‍🔥" → "💔 Divorcio"
+2. **Interfaz**: Lista con checkboxes de todos tus favoritos
+3. **Selección**: 
+   - **Marcado** = Mantener como favorito
+   - **Desmarcado** = Eliminar de favoritos
+4. **Confirmación**: Mensaje de confirmación antes de eliminar
+5. **Resultado**: Feedback con usuarios eliminados
+
+#### Características técnicas de favoritos
+
+- **💾 Persistencia**: Los favoritos se guardan permanentemente usando `GM_setValue`/`GM_getValue`
+- **🔄 Auto-refresh**: La vista se actualiza automáticamente tras cambios
+- **🛡️ Gestión de errores**: Manejo robusto de datos corruptos
+- **📱 Responsive**: Interfaz adaptada a móviles
+- **⌨️ Atajos de teclado**: Escape para cerrar modales, Enter para confirmar
+
+### 🔎 Buscador de usuarios
+
+El buscador te permite encontrar patitos específicos:
+
+1. **Acceso**: Click en el botón 🔍 en la esquina superior izquierda
+2. **Búsqueda**: Escribe el username exacto del usuario
+3. **Métodos de búsqueda**:
+   - Click en el botón "Buscar"
+   - Presiona Enter
+4. **Resultados**:
+   - **Usuario encontrado**: Muestra "🎉 ¡Patito encontrado! 🎉" con la tarjeta del usuario
+   - **Usuario no encontrado**: Muestra "❌ Patito no encontrado ❌" con una imagen aleatoria consoladora de [Picsum](https://picsum.photos/)
+
+#### Características del buscador:
+- **Búsqueda case-insensitive**: No importa si escribes en mayúsculas o minúsculas
+- **Validación**: Avisa si el campo está vacío
+- **Imágenes aleatorias**: Cada búsqueda fallida muestra una imagen diferente
+- **Atajos de teclado**: 
+  - `Enter` para buscar
+  - `Escape` para cerrar
+- **Auto-focus**: El campo de búsqueda se selecciona automáticamente
+
+## 🌍 Personalización e internacionalización
+
+### Sistema de textos configurables
+
+**Radiopatito 42** v42.4.2 incluye un sistema completo de textos configurables que permite:
+
+- **🔧 Personalización fácil**: Cambia cualquier texto del script
+- **🌍 Traducción simple**: Adapta el script a cualquier idioma
+- **📝 Mantenimiento**: Todos los textos están organizados en un solo lugar
+
+### Cambiar idioma
+
+Para cambiar el idioma, simplemente modifica el objeto `TEXTS` al principio del script:
+
+```javascript
+// Ejemplo: Cambio a inglés
+const TEXTS = {
+    FAVORITES_BUTTON: '❤️‍🔥 My Buddies ❤️‍🔥',
+    ADD_FAVORITE: '➕ Add Buddy',
+    REMOVE_FAVORITES: '💔 Remove Friends',
+    ADD_MODAL_TITLE: '❤️‍🔥 Add New Buddy ❤️‍🔥',
+    SEARCH_MODAL_TITLE: '🔍 Find User 🔍',
+    // ... resto de textos
+};
+```
+
+### Categorías de textos configurables
+
+- **🔘 Botones principales**: Filtros y acciones principales
+- **📋 Títulos dinámicos**: Contadores y encabezados
+- **❤️ Favoritos**: Toda la interfaz del sistema de favoritos
+- **🔍 Búsqueda**: Modal y mensajes de búsqueda
+- **👤 Estados de usuario**: Mensajes de online/offline
+- **⚠️ Errores**: Mensajes de validación y errores
+
+## 🛠️ Detalles técnicos
+
+### Características del código
+
+- **Namespace**: `Violentmonkey Scripts`
+- **Versión**: 42.4.2
+- **Permisos requeridos**: 
+  - `GM_setValue` (para guardar favoritos)
+  - `GM_getValue` (para cargar favoritos)
+- **Dominio**: Solo funciona en `https://meta.intra.42.fr/clusters*`
+
+### Funcionalidades implementadas
+
+- Detección automática de imágenes SVG con atributos `xlink:href` o `href`
+- Extracción de metadatos de tooltips y atributos de elementos
+- Amplificación inteligente de imágenes (15x el tamaño original)
+- Grid CSS responsive con `minmax(300px, 1fr)`
+- Filtrado dinámico por clústeres basado en IDs de estaciones
+- **NUEVO**: Sistema completo de favoritos con persistencia
+- **NUEVO**: Gestión de usuarios offline en favoritos
+- **NUEVO**: Sistema de internacionalización con textos configurables
+- Sistema de búsqueda con validación y feedback visual
+- Gestión de estados de scroll para UX mejorada
+- Manejo de errores de carga de imágenes
+- Optimizaciones de rendimiento (lazy loading, document fragments)
+- Gestión de memoria y cleanup de event listeners
+
+### Nuevas optimizaciones v42.4.2
+
+- **🏗️ Arquitectura mejorada**: Código reorganizado y más mantenible
+- **💾 Gestión de almacenamiento**: Sistema robusto de persistencia de datos
+- **🎨 Efectos visuales**: Hover effects y transiciones suaves
+- **🧩 Interpolación de strings**: Sistema de templates para mensajes dinámicos
+- **🔒 Validación mejorada**: Manejo de casos edge y datos corruptos
+
+### Optimizaciones de rendimiento
+
+- **Lazy loading**: Las imágenes se cargan bajo demanda
+- **Document fragments**: Operaciones DOM por lotes para mejor rendimiento
+- **Throttled scrolling**: Eventos de scroll optimizados
+- **Memory cleanup**: Limpieza automática de event listeners y elementos DOM
+- **Event delegation**: Manejo eficiente de eventos para favoritos
+
+## 🎨 Interfaz de usuario
+
+El script proporciona:
+
+### Vista principal
+- **Contador dinámico**: "Habemos X 👨‍💻 patitos 👩‍💻 [en Clúster A/B]" o "Habemos X ❤️‍🔥 panas ❤️‍🔥"
+- **Grid responsive**: Se adapta automáticamente al tamaño de pantalla
+- **Información de usuario**: Login y ID de estación claramente visible
+- **Estados visuales**: Diferenciación clara entre usuarios online y offline
+
+### Controles de navegación
+- **Botones de filtro**: Interfaz intuitiva con feedback visual y estados especiales
+- **Controles de favoritos**: Botones dedicados para gestión de favoritos
+- **Modal de búsqueda**: Diseño limpio y funcional
+- **Botones de acción**: Posicionamiento fijo para fácil acceso
+
+### Nuevos elementos de UI v42.4.2
+- **🎨 Hover effects**: Botones con animaciones al pasar el mouse
+- **🌈 Estados especiales**: Botón de favoritos con color distintivo
+- **📋 Modales mejorados**: Diseño consistente y accesible
+- **✨ Transiciones**: Animaciones suaves en todas las interacciones
+
+## 🤝 Contribuir
+
+¿Tienes ideas para mejorar Radiopatito 42? ¡Las contribuciones son bienvenidas!
+
+1. Fork este repositorio
+2. Crea una rama para tu feature (`git checkout -b feature/nueva-funcionalidad`)
+3. Commit tus cambios (`git commit -am 'Añade nueva funcionalidad'`)
+4. Push a la rama (`git push origin feature/nueva-funcionalidad`)
+5. Abre un Pull Request
+
+### Ideas para futuras mejoras 
+
+- [x] ~~Sección de usuarios favoritos~~ ✅ **¡Implementado en v42.4.2!**
+- [ ] Exportar/importar lista de favoritos
+- [ ] Notificaciones cuando favoritos se conectan
+- [ ] Estadísticas de tiempo de conexión
+- [ ] Temas de colores personalizables
+- [ ] Integración con la API de 42 para más información
+- [ ] Sistema de grupos/categorías de favoritos
+
+## 📝 Notas
+
+- El script se ejecuta automáticamente después de 1 segundo de cargar la página
+- Las imágenes se redimensionan manteniendo la proporción (`object-fit: contain`)
+- Compatible con el sistema de tooltips de la intranet de 42
+- Incluye logging en consola para debugging
+- El buscador solo busca entre usuarios actualmente conectados en los clústeres
+- Los filtros por clúster funcionan con el patrón estándar de IDs de 42
+- **NUEVO**: Los favoritos se almacenan localmente usando la API de Tampermonkey/Violentmonkey
+- **NUEVO**: Los usuarios offline en favoritos muestran imágenes aleatorias únicas
+
+## 🔧 Solución de problemas
+
+### El script no funciona
+- Verifica que Violentmonkey/Tampermonkey esté instalado y habilitado
+- **NUEVO**: Asegúrate de que el script tenga permisos de almacenamiento habilitados
+- Asegúrate de estar en la URL correcta: `https://meta.intra.42.fr/clusters*`
+- **Refresca la página** si acabas de instalar o modificar el script
+- Comprueba la consola del navegador para errores
+
+### No aparecen usuarios
+- Verifica que haya usuarios conectados en los clústeres
+- Comprueba que la página haya cargado completamente
+- **Intenta refrescar la página** (`F5` o `Ctrl+R`)
+
+### El buscador no encuentra usuarios
+- Asegúrate de escribir el username exacto
+- Recuerda que solo busca entre usuarios actualmente conectados
+- Verifica que el usuario esté realmente en algún clúster
+
+### Problemas con favoritos
+- **No se guardan los favoritos**: Verifica que el script tenga permisos `GM_setValue` habilitados
+- **Favoritos perdidos**: Comprueba si Tampermonkey/Violentmonkey tiene suficiente espacio de almacenamiento
+- **Error al añadir**: Asegúrate de escribir usernames válidos sin espacios
+- **No aparecen botones**: Verifica que estés en la sección "❤️‍🔥 Los panas ❤️‍🔥"
+
+### Problemas en móvil
+- Asegúrate de usar Chrome con Tampermonkey instalado
+- Verifica que el script esté habilitado en Tampermonkey
+- Comprueba que estés accediendo desde la URL correcta de la intranet
+- **NUEVO**: Los modales de favoritos están optimizados para pantallas pequeñas
+
+### Después de instalar o modificar el script
+- **Siempre refresca la página** de clústeres (`https://meta.intra.42.fr/clusters`)
+- Si ya estás en la página, presiona `F5` o `Ctrl+R`
+- El script necesita ejecutarse desde cero después de cualquier cambio
+
+## 📄 Licencia
+
+Este proyecto está bajo una licencia abierta. Siéntete libre de usar, modificar y distribuir el código.
+
+## 🏫 Sobre 42
+
+Este script está diseñado específicamente para la red de escuelas 42. Si eres estudiante de 42, ¡esperamos que encuentres útil esta herramienta para visualizar mejor a tus compañeros en los clústeres!
+
+---
+
+## 📈 Changelog
+
+### v42.4.2 - Sistema de Favoritos y Mejoras
+- ✅ **NUEVO**: Sistema completo de favoritos "❤️‍🔥 Los panas ❤️‍🔥"
+- ✅ **NUEVO**: Gestión de usuarios offline en favoritos
+- ✅ **NUEVO**: Sistema de textos configurables para internacionalización
+- ✅ **NUEVO**: Interfaz de añadir/eliminar favoritos con validaciones
+- ✅ **NUEVO**: Persistencia de datos usando GM_setValue/GM_getValue
+- ✅ **NUEVO**: Efectos hover y transiciones mejoradas
+- ✅ **MEJORADO**: Arquitectura de código reorganizada y más mantenible
+- ✅ **MEJORADO**: Gestión de errores más robusta
+- ✅ **MEJORADO**: Interfaz responsive optimizada para móviles
+
+### v42 - Versión Base
+- ✅ Vista ampliada de imágenes de perfil
+- ✅ Filtros por Clúster A y B
+- ✅ Buscador de usuarios
+- ✅ Interfaz responsive
+- ✅ Gestión de errores básica
+
+---
+
+*Hecho con ❤️ para la comunidad de 42*
