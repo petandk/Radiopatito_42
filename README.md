@@ -1,10 +1,10 @@
 # 🖥️ Radiopatito 42
 
-Un userscript para mejorar la visualización de usuarios en los clusters de la intranet de 42.
+Un userscript para mejorar la visualización de usuarios en los clústeres de la intranet de 42.
 
 ## 📋 Descripción
 
-**Radiopatito 42** es un userscript que mejora la experiencia de visualización en la sección de clusters de la intranet de 42 (`meta.intra.42.fr/clusters`). Permite ver de forma ampliada las imágenes de perfil de todos los estudiantes conectados en los clusters, junto con información útil como su login y el ordenador que están utilizando.
+**Radiopatito 42** es un userscript que mejora la experiencia de visualización en la sección de clústeres de la intranet de 42 (`meta.intra.42.fr/clusters`). Permite ver de forma ampliada las imágenes de perfil de todos los estudiantes conectados en los clústeres, junto con información útil como su login y el ordenador que están utilizando.
 
 ## ⚠️ Disclaimer
 
@@ -20,7 +20,7 @@ Un userscript para mejorar la visualización de usuarios en los clusters de la i
 
 - 🔍 **Imágenes ampliadas**: Visualiza las fotos de perfil 15 veces más grandes que el tamaño original
 - 👥 **Vista de cuadrícula**: Organiza todas las imágenes en una cuadrícula responsive
-- 🏢 **Filtros por cluster**: Filtra usuarios por Cluster A (car*) o Cluster B (cbr*)
+- 🏢 **Filtros por clúster**: Filtra usuarios por Clúster A (car*) o Clúster B (cbr*)
 - ❤️‍🔥 **Sistema de favoritos**: Añade y gestiona una lista de tus "panas" favoritos
 - 💤 **Usuarios offline**: Ve el estado de tus favoritos aunque no estén conectados
 - 🔎 **Buscador de usuarios**: Busca patitos específicos por username
@@ -62,7 +62,7 @@ Compatibilidad adicional:
 
 ## 🎯 Uso
 
-1. Navega a la sección de clusters en la intranet: `https://meta.intra.42.fr/clusters*`
+1. Navega a la sección de clústeres en la intranet: `https://meta.intra.42.fr/clusters*`
 2. Verás un botón en la esquina inferior derecha que dice **"Lo mismo pero grande"**
 3. Haz click en el botón para abrir la vista ampliada
 4. Disfruta de ver todos los "patitos" 🦆 conectados en una vista mejorada
@@ -75,16 +75,16 @@ Compatibilidad adicional:
 - **Click en imagen**: Va al perfil del usuario en una nueva pestaña
 - **Scroll**: El título se desvanece automáticamente al hacer scroll
 
-### 🏢 Filtros por cluster
+### 🏢 Filtros por clúster
 
 Una vez abierta la vista ampliada, encontrarás **cuatro botones** de filtro en la parte superior:
 
 - **Todo 42**: Muestra todos los usuarios conectados (por defecto)
-- **Cluster A**: Filtra solo usuarios en estaciones que empiecen por "car" (ej: car1s1)
-- **Cluster B**: Filtra solo usuarios en estaciones que empiecen por "cbr" (ej: cbr1s1)
+- **Clúster A**: Filtra solo usuarios en estaciones que empiecen por "car" (ej: car1s1)
+- **Clúster B**: Filtra solo usuarios en estaciones que empiecen por "cbr" (ej: cbr1s1)
 - **❤️‍🔥 Los panas ❤️‍🔥**: **NUEVO** - Muestra tu lista de favoritos
 
-El título se actualiza automáticamente para mostrar cuántos patitos hay en cada cluster.
+El título se actualiza automáticamente para mostrar cuántos patitos hay en cada clúster.
 
 ### ❤️‍🔥 Sistema de favoritos - ¡NUEVA FUNCIONALIDAD!
 
@@ -214,7 +214,7 @@ const TEXTS = {
 - Extracción de metadatos de tooltips y atributos de elementos
 - Amplificación inteligente de imágenes (15x el tamaño original)
 - Grid CSS responsive con `minmax(300px, 1fr)`
-- Filtrado dinámico por clusters basado en IDs de estaciones
+- Filtrado dinámico por clústeres basado en IDs de estaciones
 - **NUEVO**: Sistema completo de favoritos con persistencia
 - **NUEVO**: Gestión de usuarios offline en favoritos
 - **NUEVO**: Sistema de internacionalización con textos configurables
@@ -245,7 +245,7 @@ const TEXTS = {
 El script proporciona:
 
 ### Vista principal
-- **Contador dinámico**: "Habemos X 👨‍💻 patitos 👩‍💻 [en Cluster A/B]" o "Habemos X ❤️‍🔥 panas ❤️‍🔥"
+- **Contador dinámico**: "Habemos X 👨‍💻 patitos 👩‍💻 [en Clúster A/B]" o "Habemos X ❤️‍🔥 panas ❤️‍🔥"
 - **Grid responsive**: Se adapta automáticamente al tamaño de pantalla
 - **Información de usuario**: Login y ID de estación claramente visible
 - **Estados visuales**: Diferenciación clara entre usuarios online y offline
@@ -288,8 +288,8 @@ El script proporciona:
 - Las imágenes se redimensionan manteniendo la proporción (`object-fit: contain`)
 - Compatible con el sistema de tooltips de la intranet de 42
 - Incluye logging en consola para debugging
-- El buscador solo busca entre usuarios actualmente conectados en los clusters
-- Los filtros por cluster funcionan con el patrón estándar de IDs de 42
+- El buscador solo busca entre usuarios actualmente conectados en los clústeres
+- Los filtros por clúster funcionan con el patrón estándar de IDs de 42
 - **NUEVO**: Los favoritos se almacenan localmente usando la API de Tampermonkey/Violentmonkey
 - **NUEVO**: Los usuarios offline en favoritos muestran imágenes aleatorias únicas
 
@@ -302,14 +302,14 @@ El script proporciona:
 - Comprueba la consola del navegador para errores
 
 ### No aparecen usuarios
-- Verifica que haya usuarios conectados en los clusters
+- Verifica que haya usuarios conectados en los clústeres
 - Comprueba que la página haya cargado completamente
 - Intenta refrescar la página
 
 ### El buscador no encuentra usuarios
 - Asegúrate de escribir el username exacto
 - Recuerda que solo busca entre usuarios actualmente conectados
-- Verifica que el usuario esté realmente en algún cluster
+- Verifica que el usuario esté realmente en algún clúster
 
 ### Problemas con favoritos
 - **No se guardan los favoritos**: Verifica que el script tenga permisos `GM_setValue` habilitados
@@ -329,7 +329,7 @@ Este proyecto está bajo una licencia abierta. Siéntete libre de usar, modifica
 
 ## 🏫 Sobre 42
 
-Este script está diseñado específicamente para la red de escuelas 42. Si eres estudiante de 42, ¡esperamos que encuentres útil esta herramienta para visualizar mejor a tus compañeros en los clusters!
+Este script está diseñado específicamente para la red de escuelas 42. Si eres estudiante de 42, ¡esperamos que encuentres útil esta herramienta para visualizar mejor a tus compañeros en los clústeres!
 
 ---
 
@@ -348,7 +348,7 @@ Este script está diseñado específicamente para la red de escuelas 42. Si eres
 
 ### v42 - Versión Base
 - ✅ Vista ampliada de imágenes de perfil
-- ✅ Filtros por Cluster A y B
+- ✅ Filtros por Clúster A y B
 - ✅ Buscador de usuarios
 - ✅ Interfaz responsive
 - ✅ Gestión de errores básica
