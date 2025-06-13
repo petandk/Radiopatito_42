@@ -10,11 +10,14 @@ Un userscript para mejorar la visualización de usuarios en los clusters de la i
 
 - 🔍 **Imágenes ampliadas**: Visualiza las fotos de perfil 15 veces más grandes que el tamaño original
 - 👥 **Vista de cuadrícula**: Organiza todas las imágenes en una cuadrícula responsive
+- 🏢 **Filtros por cluster**: Filtra usuarios por Cluster A (car*) o Cluster B (cbr*)
+- 🔎 **Buscador de usuarios**: Busca patitos específicos por username
 - 📊 **Información detallada**: Muestra el login del usuario y el ID del ordenador
 - 🔗 **Enlaces directos**: Click en cualquier imagen para ir al perfil del usuario
 - 🎨 **Interfaz moderna**: Diseño dark con bordes redondeados y sombras
 - 📱 **Responsive**: Se adapta a diferentes tamaños de pantalla
 - ⚡ **Gestión de errores**: Manejo elegante de imágenes que no cargan
+- 🎲 **Imagen aleatoria**: Si un usuario no existe, muestra una imagen consoladora
 
 ## 🚀 Instalación
 
@@ -40,12 +43,45 @@ Compatibilidad conocida:
 3. Haz click en el botón para abrir la vista ampliada
 4. Disfruta de ver todos los "patitos" 🦆 conectados en una vista mejorada
 
-### 🖱️ Controles
+### 🖱️ Controles principales
 
 - **Botón principal**: Abre/actualiza la vista de imágenes ampliadas
-- **Botón ×**: Cierra la vista ampliada (esquina superior derecha)
+- **Botón × (superior derecho)**: Cierra la vista ampliada
+- **Botón 🔍 (superior izquierdo)**: Abre el buscador de usuarios
 - **Click en imagen**: Va al perfil del usuario en una nueva pestaña
 - **Scroll**: El título se desvanece automáticamente al hacer scroll
+
+### 🏢 Filtros por cluster
+
+Una vez abierta la vista ampliada, encontrarás tres botones de filtro en la parte superior:
+
+- **Todo 42**: Muestra todos los usuarios conectados (por defecto)
+- **Cluster A**: Filtra solo usuarios en estaciones que empiecen por "car" (ej: car13s1)
+- **Cluster B**: Filtra solo usuarios en estaciones que empiecen por "cbr" (ej: cbr13s1)
+
+El título se actualiza automáticamente para mostrar cuántos patitos hay en cada cluster.
+
+### 🔎 Buscador de usuarios
+
+El buscador te permite encontrar patitos específicos:
+
+1. **Acceso**: Click en el botón 🔍 en la esquina superior izquierda
+2. **Búsqueda**: Escribe el username exacto del usuario
+3. **Métodos de búsqueda**:
+   - Click en el botón "Buscar"
+   - Presiona Enter
+4. **Resultados**:
+   - **Usuario encontrado**: Muestra "🎉 ¡Patito encontrado! 🎉" con la tarjeta del usuario
+   - **Usuario no encontrado**: Muestra "❌ Patito no encontrado ❌" con una imagen aleatoria consoladora de [Picsum](https://picsum.photos/)
+
+#### Características del buscador:
+- **Búsqueda case-insensitive**: No importa si escribes en mayúsculas o minúsculas
+- **Validación**: Avisa si el campo está vacío
+- **Imágenes aleatorias**: Cada búsqueda fallida muestra una imagen diferente
+- **Atajos de teclado**: 
+  - `Enter` para buscar
+  - `Escape` para cerrar
+- **Auto-focus**: El campo de búsqueda se selecciona automáticamente
 
 ## 🛠️ Detalles técnicos
 
@@ -62,15 +98,33 @@ Compatibilidad conocida:
 - Extracción de metadatos de tooltips y atributos de elementos
 - Amplificación inteligente de imágenes (15x el tamaño original)
 - Grid CSS responsive con `minmax(300px, 1fr)`
+- Filtrado dinámico por clusters basado en IDs de estaciones
+- Sistema de búsqueda con validación y feedback visual
 - Gestión de estados de scroll para UX mejorada
 - Manejo de errores de carga de imágenes
+- Optimizaciones de rendimiento (lazy loading, document fragments)
+- Gestión de memoria y cleanup de event listeners
 
-## 🎨 Capturas de pantalla
+### Optimizaciones de rendimiento
 
-El script muestra:
-- Contador total de usuarios: "Habemos X 👨‍💻 patitos 👩‍💻"
-- Grid de imágenes ampliadas con información del usuario
-- Navegación intuitiva con botones de control
+- **Lazy loading**: Las imágenes se cargan bajo demanda
+- **Document fragments**: Operaciones DOM por lotes para mejor rendimiento
+- **Throttled scrolling**: Eventos de scroll optimizados
+- **Memory cleanup**: Limpieza automática de event listeners y elementos DOM
+
+## 🎨 Interfaz de usuario
+
+El script proporciona:
+
+### Vista principal
+- **Contador dinámico**: "Habemos X 👨‍💻 patitos 👩‍💻 [en Cluster A/B]"
+- **Grid responsive**: Se adapta automáticamente al tamaño de pantalla
+- **Información de usuario**: Login y ID de estación claramente visible
+
+### Controles de navegación
+- **Botones de filtro**: Interfaz intuitiva con feedback visual
+- **Modal de búsqueda**: Diseño limpio y funcional
+- **Botones de acción**: Posicionamiento fijo para fácil acceso
 
 ## 🤝 Contribuir
 
@@ -82,12 +136,38 @@ El script muestra:
 4. Push a la rama (`git push origin feature/nueva-funcionalidad`)
 5. Abre un Pull Request
 
+### Ideas para futuras mejoras
+- [ ] Filtros adicionales por campus
+- [ ] Modo oscuro/claro
+- [ ] Exportar lista de usuarios conectados
+- [ ] Historial de búsquedas
+- [ ] Notificaciones de usuarios favoritos
+
 ## 📝 Notas
 
 - El script se ejecuta automáticamente después de 1 segundo de cargar la página
 - Las imágenes se redimensionan manteniendo la proporción (`object-fit: contain`)
 - Compatible con el sistema de tooltips de la intranet de 42
 - Incluye logging en consola para debugging
+- El buscador solo busca entre usuarios actualmente conectados en los clusters
+- Los filtros por cluster funcionan con el patrón estándar de IDs de 42
+
+## 🔧 Solución de problemas
+
+### El script no funciona
+- Verifica que Violentmonkey esté instalado y habilitado
+- Asegúrate de estar en la URL correcta: `https://meta.intra.42.fr/clusters*`
+- Comprueba la consola del navegador para errores
+
+### No aparecen usuarios
+- Verifica que haya usuarios conectados en los clusters
+- Comprueba que la página haya cargado completamente
+- Intenta refrescar la página
+
+### El buscador no encuentra usuarios
+- Asegúrate de escribir el username exacto
+- Recuerda que solo busca entre usuarios actualmente conectados
+- Verifica que el usuario esté realmente en algún cluster
 
 ## 📄 Licencia
 
