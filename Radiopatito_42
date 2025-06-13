@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name        Radiopatito 42
+// @name        Radiopatio 42
 // @namespace   Violentmonkey Scripts
 // @match       https://meta.intra.42.fr/clusters*
 // @grant       none
@@ -8,7 +8,7 @@
 // @description Boooooooooooooooooooooooored
 // ==/UserScript==
 
-console.log('Radiopatito 42 loaded!');
+console.log('Radiopatio 42 loaded!');
 
 setTimeout(() => {
     // Create button
@@ -38,16 +38,22 @@ setTimeout(() => {
             return;
         }
 
-        // Remove existing grid
-        document.getElementById('Radiopatito-grid')?.remove();
+        // Remove existing grid and modals
+        document.getElementById('radiopatio-grid')?.remove();
+        document.getElementById('search-modal')?.remove();
+        document.querySelectorAll('[data-radiopatio-button]').forEach(btn => btn.remove());
+
+        // State management
+        let currentFilter = 'all';
+        let gridContainer, titleElement, searchBtn, closeBtn;
 
         // Create main container
         const container = document.createElement('div');
-        container.id = 'Radiopatito-grid';
+        container.id = 'radiopatio-grid';
         container.style.cssText = `
             position: fixed; top: 10px; left: 10px; right: 10px; bottom: 10px;
             background: #474b54; border: 2px solid #666; border-radius: 10px;
-            padding: 10px 20px 10px 20px; z-index: 100000; overflow-y: auto;
+            padding: 0px 20px 10px 20px; z-index: 100000; overflow-y: auto;
             box-shadow: 0 4px 20px rgba(0,0,0,0.5);
         `;
 
@@ -58,13 +64,11 @@ setTimeout(() => {
             position: sticky; top: 0; padding: 10px 0; z-index: 100001;
         `;
 
-        // Filter state
-        let currentFilter = 'all';
-
         // Create filter buttons
         const createFilterButton = (text, filter) => {
             const button = document.createElement('button');
             button.textContent = text;
+            button.setAttribute('data-filter', filter);
             button.style.cssText = `
                 padding: 8px 16px; border: 1px solid #666; border-radius: 6px;
                 font-size: 14px; font-weight: bold; cursor: pointer;
@@ -91,15 +95,11 @@ setTimeout(() => {
         filterContainer.appendChild(clusterABtn);
         filterContainer.appendChild(clusterBBtn);
 
-
         // Update button styles based on current filter
         const updateButtonStyles = () => {
             [clusterABtn, clusterBBtn, todoBtn].forEach(btn => {
-                const isActive = (
-                  (btn === todoBtn && currentFilter === 'all') ||
-                    (btn === clusterBBtn && currentFilter === 'cbr') ||
-                    (btn === clusterABtn && currentFilter === 'car')
-                );
+                const btnFilter = btn.getAttribute('data-filter');
+                const isActive = btnFilter === currentFilter;
                 btn.style.background = isActive ? '#D8636F' : '#3a3e47';
                 btn.style.color = isActive ? '#02807c' : '#cccccc';
             });
@@ -111,6 +111,7 @@ setTimeout(() => {
             text-align: center; color: #ffffff; font-size: 18px; font-weight: bold;
             margin: 0 0 8px 0; padding: 5px 0; transition: opacity 0.3s ease;
         `;
+        titleElement = title;
 
         // Function to update title based on filter
         const updateTitle = (filteredImages) => {
@@ -119,12 +120,26 @@ setTimeout(() => {
             title.textContent = `Habemos ${filteredImages.length} 👨‍💻 patitos 👩‍💻${filterText}`;
         };
 
+        // Create search button
+        searchBtn = document.createElement('button');
+        searchBtn.textContent = '🔍';
+        searchBtn.setAttribute('data-radiopatio-button', 'search');
+        searchBtn.onclick = () => showSearchModal();
+        searchBtn.style.cssText = `
+            position: fixed; top: 15px; left: 15px; z-index: 100002;
+            background: #D8636F; color: #02807c; border: none; border-radius: 50%;
+            width: 40px; height: 40px; font-size: 20px; font-weight: bold; cursor: pointer;
+        `;
+
         // Create close button
-        const closeBtn = document.createElement('button');
+        closeBtn = document.createElement('button');
         closeBtn.textContent = '×';
+        closeBtn.setAttribute('data-radiopatio-button', 'close');
         closeBtn.onclick = () => {
             container.remove();
+            searchBtn.remove();
             closeBtn.remove();
+            document.getElementById('search-modal')?.remove();
         };
         closeBtn.style.cssText = `
             position: fixed; top: 15px; right: 15px; z-index: 100002;
@@ -133,15 +148,12 @@ setTimeout(() => {
         `;
 
         // Hide title when scrolling
-        let isScrolling = false;
+        let scrollTimeout;
         container.addEventListener('scroll', () => {
-            if (!isScrolling) {
-                isScrolling = true;
-                requestAnimationFrame(() => {
-                    title.style.opacity = container.scrollTop > 30 ? '0' : '1';
-                    isScrolling = false;
-                });
-            }
+            clearTimeout(scrollTimeout);
+            scrollTimeout = setTimeout(() => {
+                title.style.opacity = container.scrollTop > 30 ? '0' : '1';
+            }, 16); // ~60fps
         });
 
         // Create image grid
@@ -150,37 +162,46 @@ setTimeout(() => {
             display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 15px; padding-top: 10px;
         `;
+        gridContainer = grid;
 
         // Function to filter images based on current filter
         const getFilteredImages = () => {
             if (currentFilter === 'all') {
                 return images;
             }
-            return images.filter(imgData => imgData.id.toLowerCase().startsWith(currentFilter));
+            return images.filter(imgData => imgData.id.toLowerCase().startsWith(currentFilter.toLowerCase()));
         };
 
-        // Function to create image card
+        // Function to create image card (optimized)
         const createImageCard = (imgData) => {
             const { href, login, id, width, height } = imgData;
 
             const card = document.createElement('div');
+            card.className = 'radiopatio-card';
             card.style.cssText = `
                 border: 1px solid #666; border-radius: 8px; padding: 15px;
                 text-align: center; background: #3a3e47; box-shadow: 0 2px 5px rgba(0,0,0,0.3);
             `;
 
             const link = document.createElement('a');
-            link.href = login !== 'Unknown' ? `https://profile-v3.intra.42.fr/users/${login}` : '#';
-            link.target = login !== 'Unknown' ? '_blank' : '_self';
-            link.style.cssText = `text-decoration: none; display: block; ${login === 'Unknown' ? 'pointer-events: none;' : ''}`;
+            if (login !== 'Unknown') {
+                link.href = `https://profile-v3.intra.42.fr/users/${login}`;
+                link.target = '_blank';
+                link.rel = 'noopener noreferrer';
+            } else {
+                link.href = '#';
+                link.style.pointerEvents = 'none';
+            }
+            link.style.cssText = 'text-decoration: none; display: block;';
 
             const img = document.createElement('img');
             img.src = href;
             img.alt = `${login}'s profile image`;
+            img.loading = 'lazy'; // Performance optimization
             img.style.cssText = `
-                width: ${width * 15}px; height: ${height * 15}px;
-                max-width: 600px; max-height: 600px; object-fit: contain;
-                border: 2px solid #666; border-radius: 4px; background: #2c2f36;
+                width: ${Math.min(width * 15, 600)}px; height: ${Math.min(height * 15, 600)}px;
+                object-fit: contain; border: 2px solid #666; border-radius: 4px;
+                background: #2c2f36;
             `;
 
             img.onerror = () => {
@@ -204,10 +225,10 @@ setTimeout(() => {
             return card;
         };
 
-        // Function to update grid based on current filter
+        // Function to update grid based on current filter (optimized)
         const updateGrid = () => {
-            // Clear current grid
-            grid.innerHTML = '';
+            // Clear current grid efficiently
+            gridContainer.innerHTML = '';
 
             // Get filtered images
             const filteredImages = getFilteredImages();
@@ -215,13 +236,183 @@ setTimeout(() => {
             // Update title
             updateTitle(filteredImages);
 
-            // Add filtered images to grid
+            // Use document fragment for better performance
+            const fragment = document.createDocumentFragment();
             filteredImages.forEach(imgData => {
                 const card = createImageCard(imgData);
-                grid.appendChild(card);
+                fragment.appendChild(card);
+            });
+            gridContainer.appendChild(fragment);
+
+            console.log(`Radiopatio 42: Updated grid with ${filteredImages.length} images (filter: ${currentFilter})`);
+        };
+
+        // Function to show search modal (fixed and optimized)
+        const showSearchModal = () => {
+            // Remove existing search modal
+            document.getElementById('search-modal')?.remove();
+
+            const searchModal = document.createElement('div');
+            searchModal.id = 'search-modal';
+            searchModal.style.cssText = `
+                position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+                background: rgba(0,0,0,0.8); z-index: 100003;
+                display: flex; align-items: center; justify-content: center;
+            `;
+
+            const searchContent = document.createElement('div');
+            searchContent.style.cssText = `
+                background: #474b54; border: 2px solid #666; border-radius: 10px;
+                padding: 30px; width: 400px; max-width: 90vw; position: relative;
+                box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            `;
+
+            const searchTitle = document.createElement('h3');
+            searchTitle.textContent = '🔍 Buscar Patito';
+            searchTitle.style.cssText = `
+                color: #ffffff; text-align: center; margin: 0 0 20px 0;
+                font-size: 18px;
+            `;
+
+            const searchInput = document.createElement('input');
+            searchInput.type = 'text';
+            searchInput.placeholder = 'Escribe el username...';
+            searchInput.style.cssText = `
+                width: 100%; padding: 12px; border: 1px solid #666;
+                border-radius: 6px; background: #3a3e47; color: #ffffff;
+                font-size: 16px; box-sizing: border-box;
+            `;
+
+            const searchButton = document.createElement('button');
+            searchButton.textContent = 'Buscar';
+            searchButton.style.cssText = `
+                width: 100%; margin-top: 15px; padding: 12px;
+                background: #D8636F; color: #02807c; border: none;
+                border-radius: 6px; font-size: 16px; font-weight: bold;
+                cursor: pointer;
+            `;
+
+            const resultDiv = document.createElement('div');
+            resultDiv.style.cssText = 'margin-top: 20px;';
+
+            const performSearch = () => {
+                const searchTerm = searchInput.value.trim().toLowerCase();
+                if (!searchTerm) {
+                    resultDiv.innerHTML = '<div style="color: #ff6b6b; text-align: center;">Por favor escribe un username</div>';
+                    return;
+                }
+
+                resultDiv.innerHTML = '';
+
+                // Find user in current images
+                const foundUser = images.find(img =>
+                    img.login.toLowerCase() === searchTerm
+                );
+
+                if (foundUser) {
+                    // Show found user card
+                    const userCard = createImageCard(foundUser);
+                    userCard.style.cssText += ' margin: 0 auto; max-width: 300px;';
+
+                    const foundText = document.createElement('div');
+                    foundText.textContent = '¡Patito encontrado! 🎉';
+                    foundText.style.cssText = `
+                        color: #4ade80; text-align: center; margin-bottom: 15px;
+                        font-weight: bold; font-size: 16px;
+                    `;
+
+                    resultDiv.appendChild(foundText);
+                    resultDiv.appendChild(userCard);
+                } else {
+                    // Show not found with random image
+                    const notFoundText = document.createElement('div');
+                    notFoundText.textContent = '❌ Patito no encontrado';
+                    notFoundText.style.cssText = `
+                        color: #ff6b6b; text-align: center; margin-bottom: 15px;
+                        font-weight: bold; font-size: 16px;
+                    `;
+
+                    const randomImageCard = document.createElement('div');
+                    randomImageCard.style.cssText = `
+                        border: 1px solid #666; border-radius: 8px; padding: 15px;
+                        text-align: center; background: #3a3e47; box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+                        margin: 0 auto; max-width: 250px;
+                    `;
+
+                    const randomImg = document.createElement('img');
+                    randomImg.src = `https://picsum.photos/200?random=${Date.now()}`;
+                    randomImg.alt = 'Random image';
+                    randomImg.loading = 'lazy';
+                    randomImg.style.cssText = `
+                        width: 200px; height: 200px; object-fit: cover;
+                        border: 2px solid #666; border-radius: 4px;
+                    `;
+
+                    const randomInfo = document.createElement('div');
+                    randomInfo.style.cssText = 'margin-top: 10px; font-size: 14px; color: #cccccc;';
+                    randomInfo.innerHTML = `
+                        <strong style="color: #ffffff;">🤷‍♂️ Usuario desconocido</strong><br>
+                        <em>Imagen aleatoria de consolación</em>
+                    `;
+
+                    randomImageCard.appendChild(randomImg);
+                    randomImageCard.appendChild(randomInfo);
+
+                    resultDiv.appendChild(notFoundText);
+                    resultDiv.appendChild(randomImageCard);
+                }
+            };
+
+            const closeSearchModal = () => {
+                searchModal.remove();
+            };
+
+            searchButton.onclick = performSearch;
+            searchInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    performSearch();
+                }
             });
 
-            console.log(`Radiopatito 42: Updated grid with ${filteredImages.length} images (filter: ${currentFilter})`);
+            // Close modal when clicking outside
+            searchModal.addEventListener('click', (e) => {
+                if (e.target === searchModal) {
+                    closeSearchModal();
+                }
+            });
+
+            const closeSearchBtn = document.createElement('button');
+            closeSearchBtn.textContent = '×';
+            closeSearchBtn.onclick = closeSearchModal;
+            closeSearchBtn.style.cssText = `
+                position: absolute; top: 10px; right: 15px;
+                background: none; border: none; color: #cccccc;
+                font-size: 24px; cursor: pointer; padding: 0;
+            `;
+
+            // Add escape key support
+            const handleKeydown = (e) => {
+                if (e.key === 'Escape') {
+                    closeSearchModal();
+                    document.removeEventListener('keydown', handleKeydown);
+                }
+            };
+            document.addEventListener('keydown', handleKeydown);
+
+            searchContent.appendChild(closeSearchBtn);
+            searchContent.appendChild(searchTitle);
+            searchContent.appendChild(searchInput);
+            searchContent.appendChild(searchButton);
+            searchContent.appendChild(resultDiv);
+            searchModal.appendChild(searchContent);
+            document.body.appendChild(searchModal);
+
+            // Focus on input with slight delay
+            setTimeout(() => {
+                searchInput.focus();
+                searchInput.select();
+            }, 100);
         };
 
         // Build initial UI
@@ -230,9 +421,12 @@ setTimeout(() => {
         container.appendChild(grid);
         document.body.appendChild(container);
         document.body.appendChild(closeBtn);
+        document.body.appendChild(searchBtn);
 
         // Initialize with all images
         updateGrid();
+
+        console.log(`Radiopatio 42: Initialized with ${images.length} total images`);
     };
 
     document.body.appendChild(btn);
