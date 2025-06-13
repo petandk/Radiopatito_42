@@ -3,7 +3,7 @@
 // @namespace   Violentmonkey Scripts
 // @match       https://meta.intra.42.fr/clusters*
 // @grant       none
-// @version     42.3
+// @version     42.4
 // @author      you
 // @description Boooooooooooooooooooooooored
 // ==/UserScript==
@@ -268,7 +268,7 @@ setTimeout(() => {
             `;
 
             const searchTitle = document.createElement('h3');
-            searchTitle.textContent = '🔍 Buscar Patito';
+            searchTitle.textContent = '🔍 Buscar Patito 🔍';
             searchTitle.style.cssText = `
                 color: #ffffff; text-align: center; margin: 0 0 20px 0;
                 font-size: 18px;
@@ -276,7 +276,7 @@ setTimeout(() => {
 
             const searchInput = document.createElement('input');
             searchInput.type = 'text';
-            searchInput.placeholder = 'Escribe el username...';
+            searchInput.placeholder = 'A quien coño buscas?';
             searchInput.style.cssText = `
                 width: 100%; padding: 12px; border: 1px solid #666;
                 border-radius: 6px; background: #3a3e47; color: #ffffff;
