@@ -148,7 +148,7 @@ El script proporciona:
 
 ### Ideas para futuras mejoras
 
-- [ ] Notificaciones de usuarios favoritos
+- [ ] Sección de usuarios favoritos
 
 ## 📝 Notas
 
