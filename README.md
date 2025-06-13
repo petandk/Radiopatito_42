@@ -1,10 +1,10 @@
-# 🖥️ Radiopatio 42
+# 🖥️ Radiopatito 42
 
 Un userscript para mejorar la visualización de usuarios en los clusters de la intranet de 42.
 
 ## 📋 Descripción
 
-**Radiopatio 42** es un userscript que mejora la experiencia de visualización en la sección de clusters de la intranet de 42 (`meta.intra.42.fr/clusters`). Permite ver de forma ampliada las imágenes de perfil de todos los estudiantes conectados en los clusters, junto con información útil como su login y el ordenador que están utilizando.
+**Radiopatito 42** es un userscript que mejora la experiencia de visualización en la sección de clusters de la intranet de 42 (`meta.intra.42.fr/clusters`). Permite ver de forma ampliada las imágenes de perfil de todos los estudiantes conectados en los clusters, junto con información útil como su login y el ordenador que están utilizando.
 
 ### ✨ Características
 
@@ -30,7 +30,7 @@ Compatibilidad conocida:
 ### Paso 2: Instalar el script
 
 1. Instala [Violentmonkey](https://violentmonkey.github.io/) en tu navegador
-2. Descarga el archivo `radiopatio_42.user.js` desde este repositorio
+2. Descarga el archivo `Radiopatito_42.user.js` desde este repositorio
 3. Arrastra el archivo al dashboard de Violentmonkey o haz click en "Install" cuando se abra automáticamente
 
 ## 🎯 Uso
@@ -74,7 +74,7 @@ El script muestra:
 
 ## 🤝 Contribuir
 
-¿Tienes ideas para mejorar Radiopatio 42? ¡Las contribuciones son bienvenidas!
+¿Tienes ideas para mejorar Radiopatito 42? ¡Las contribuciones son bienvenidas!
 
 1. Fork este repositorio
 2. Crea una rama para tu feature (`git checkout -b feature/nueva-funcionalidad`)
