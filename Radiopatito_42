@@ -3,7 +3,7 @@
 // @namespace   Violentmonkey Scripts
 // @match       https://meta.intra.42.fr/clusters*
 // @grant       none
-// @version     42.3
+// @version     42
 // @author      you
 // @description Boooooooooooooooooooooooored
 // ==/UserScript==
@@ -315,7 +315,7 @@ setTimeout(() => {
                     userCard.style.cssText += ' margin: 0 auto; max-width: 300px;';
 
                     const foundText = document.createElement('div');
-                    foundText.textContent = '¡Patito encontrado! 🎉';
+                    foundText.textContent = '🎉 ¡Patito encontrado! 🎉';
                     foundText.style.cssText = `
                         color: #4ade80; text-align: center; margin-bottom: 15px;
                         font-weight: bold; font-size: 16px;
@@ -326,7 +326,7 @@ setTimeout(() => {
                 } else {
                     // Show not found with random image
                     const notFoundText = document.createElement('div');
-                    notFoundText.textContent = '❌ Patito no encontrado';
+                    notFoundText.textContent = '❌ Patito no encontrado ❌';
                     notFoundText.style.cssText = `
                         color: #ff6b6b; text-align: center; margin-bottom: 15px;
                         font-weight: bold; font-size: 16px;
@@ -351,7 +351,7 @@ setTimeout(() => {
                     const randomInfo = document.createElement('div');
                     randomInfo.style.cssText = 'margin-top: 10px; font-size: 14px; color: #cccccc;';
                     randomInfo.innerHTML = `
-                        <strong style="color: #ffffff;">🤷‍♂️ Usuario desconocido</strong><br>
+                        <strong style="color: #ffffff;">🤷‍♂️ Usuario desconocido 🤷‍</strong><br>
                         <em>Imagen aleatoria de consolación</em>
                     `;
 
