@@ -1,0 +1,188 @@
+
+Violentmonkey
+Installed scripts
+Settings
+About
+Recycle Bin
+for 1 matching scripts
+Sort order: 
+execution
+Search scripts...
+
+Radiopatito 42
+you
+42
+10k
+0min
+CodeSettingsValues?
+Radiopatito 42
+Use another editor?
+SaveSave & CloseClose
+1
+// ==UserScript==
+2
+// @name        Radiopatito 42
+3
+// @namespace   Violentmonkey Scripts
+4
+// @match       https://meta.intra.42.fr/clusters*
+5
+// @grant       none
+6
+// @version     42
+7
+// @author      you
+8
+// @description Boooooooooooooooooooooooored
+9
+// ==/UserScript==
+10
+​
+11
+console.log('Radiopatito 42 loaded!');
+12
+​
+13
+setTimeout(() => {
+14
+    // Create button
+15
+    const btn = document.createElement('button');
+16
+    btn.innerHTML = 'Lo mismo pero <span style="font-size: 22px;">grande</span>';
+17
+    btn.style.cssText = `
+18
+        position: fixed; bottom: 20px; right: 20px; z-index: 99999;
+19
+        background: #474b54; border: 1px solid #666; border-radius: 10px; padding: 10px 15px;
+20
+        color: #02807c; background-color: #D8636F; font-size: 14px; font-weight: bold;
+21
+        cursor: pointer; box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+22
+    `;
+23
+​
+24
+    btn.onclick = () => {
+25
+        // Find images
+26
+        const images = Array.from(document.querySelectorAll('image[*|href]')).map(img => ({
+27
+            element: img,
+28
+            href: img.getAttributeNS('http://www.w3.org/1999/xlink', 'href') ||
+29
+                  img.getAttribute('xlink:href') || img.getAttribute('href'),
+30
+            login: img.getAttribute('data-tooltip-login') || 'Unknown',
+31
+            id: img.getAttribute('id') || 'No ID',
+32
+            width: parseFloat(img.getAttribute('width')) || 50,
+33
+            height: parseFloat(img.getAttribute('height')) || 50
+34
+        })).filter(img => img.href?.trim());
+35
+​
+36
+        if (!images.length) {
+37
+            alert('No images found!');
+38
+            return;
+39
+        }
+40
+​
+41
+        // Remove existing grid
+42
+        document.getElementById('Radiopatito-grid')?.remove();
+43
+​
+44
+        // Create main container
+45
+        const container = document.createElement('div');
+46
+        container.id = 'Radiopatito-grid';
+47
+        container.style.cssText = `
+48
+            position: fixed; top: 10px; left: 10px; right: 10px; bottom: 10px;
+49
+            background: #474b54; border: 2px solid #666; border-radius: 10px;
+50
+            padding: 10px 20px 10px 20px; z-index: 100000; overflow-y: auto;
+51
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+52
+        `;
+53
+​
+54
+        // Create filter buttons container
+55
+        const filterContainer = document.createElement('div');
+56
+        filterContainer.style.cssText = `
+57
+            display: flex; justify-content: center; gap: 10px; margin-bottom: 15px;
+58
+            position: sticky; top: 0; padding: 10px 0; z-index: 100001;
+59
+        `;
+60
+​
+61
+        // Filter state
+62
+        let currentFilter = 'all';
+63
+​
+64
+        // Create filter buttons
+65
+        const createFilterButton = (text, filter) => {
+66
+            const button = document.createElement('button');
+67
+            button.textContent = text;
+68
+            button.style.cssText = `
+69
+                padding: 8px 16px; border: 1px solid #666; border-radius: 6px;
+70
+                font-size: 14px; font-weight: bold; cursor: pointer;
+71
+                transition: all 0.3s ease;
+72
+                ${filter === currentFilter ?
+73
+                    'background: #D8636F; color: #02807c;' :
+74
+                    'background: #3a3e47; color: #cccccc;'}
+75
+            `;
+76
+​
+77
+            button.onclick = () => {
+78
+                currentFilter = filter;
+Line no.: 
+Search for: 
+Radiopatio
+<
+>
+Replace with: 
+Radiopatito
+Replace
+All
+.*
+Aa
+×
