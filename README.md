@@ -51,8 +51,8 @@ Tienes dos opciones para instalar **Radiopatito 42**:
 1. Instala [Violentmonkey](https://violentmonkey.github.io/) en tu navegador
 2. Copia el código completo del userscript desde GitHub:
    - Ve al archivo <a href="./Radiopatito_42" target="_blank" rel="noopener noreferrer">`Radiopatito_42`</a> en este repositorio
-   - Haz click en **"Raw"** para ver el código sin formato
-   - Selecciona todo el código (`Ctrl+A`) y cópialo (`Ctrl+C`)
+   - Haz click en **"Copy raw file"** para copiar el código sin formato
+
 3. Abre el dashboard de Violentmonkey
 4. Haz click en **"+ Nuevo"** o **"New Script"**
 5. **Borra todo** el contenido que aparece por defecto
@@ -75,13 +75,13 @@ Tienes dos opciones para instalar **Radiopatito 42**:
 
 ### 📱 Compatibilidad móvil
 
-**Radiopatito 42** es compatible con la versión móvil de Chrome usando **Tampermonkey**.
+**Radiopatito 42** es compatible con la versión móvil de Firefox usando **Tampermonkey**.
 
 Compatibilidad adicional:
 - ❓ **Greasemonkey** (No probado)
 - ❓ **Violentmonkey** (No probado)
 <img src="radiopatito_mobile.jpg" alt="Vista móvil de Radiopatito 42" width="200">
-*Radiopatito 42 funcionando en Chrome móvil con Tampermonkey*
+*Radiopatito 42 funcionando en Firerox móvil con Tampermonkey*
 
 ## 🎯 Uso
 
