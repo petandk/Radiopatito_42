@@ -75,7 +75,7 @@ Tienes dos opciones para instalar **Radiopatito 42**:
 
 ### 📱 Compatibilidad móvil
 
-**Radiopatito 42** es compatible con la versión móvil de Firefox usando **Tampermonkey**.
+**Radiopatito_42_Movil** es la versión móvil probada en Firefox usando **Tampermonkey**.
 
 Compatibilidad adicional:
 - ❓ **Greasemonkey** (No probado)
