@@ -132,6 +132,7 @@ Los usuarios favoritos pueden aparecer en dos estados:
    - Estilo visual diferenciado (bordes rosas, opacidad reducida)
    - Texto "🔌 Offline" en lugar del ID del ordenador
    - Mensaje "❤️‍🔥 Tu pana está offline ❤️‍🔥"
+   - **✨ NUEVA MEJORA**: También puedes hacer click para ir a su perfil
 
 #### ➕ Añadir favoritos
 
@@ -145,15 +146,24 @@ Los usuarios favoritos pueden aparecer en dos estados:
    - Valida campos vacíos
    - Feedback visual inmediato
 
-#### 💔 Gestión de divorcios
+#### 💔 Gestión de divorcios - **¡MEJORADO!**
 
 1. **Acceso**: Click en "❤️‍🔥 Los panas ❤️‍🔥" → "💔 Divorcio"
 2. **Interfaz**: Lista con checkboxes de todos tus favoritos
-3. **Selección**: 
-   - **Marcado** = Mantener como favorito
-   - **Desmarcado** = Eliminar de favoritos
+3. **✨ NUEVA LÓGICA**: 
+   - **Todas las casillas aparecen desmarcadas por defecto**
+   - **Marca las casillas** de los panas de los que te quieres divorciar
+   - **Mucho más seguro**: No hay riesgo de divorciarte accidentalmente de todos
 4. **Confirmación**: Mensaje de confirmación antes de eliminar
 5. **Resultado**: Feedback con usuarios eliminados
+
+#### 🎯 Ordenación inteligente de favoritos
+
+Los favoritos ahora se muestran en orden de prioridad:
+- **Primero**: Panas conectados (online) 💚
+- **Después**: Panas desconectados (offline) 💤
+
+Esto hace que sea más fácil ver de un vistazo quiénes de tus panas están disponibles.
 
 #### Características técnicas de favoritos
 
@@ -162,6 +172,7 @@ Los usuarios favoritos pueden aparecer en dos estados:
 - **🛡️ Gestión de errores**: Manejo robusto de datos corruptos
 - **📱 Responsive**: Interfaz adaptada a móviles
 - **⌨️ Atajos de teclado**: Escape para cerrar modales, Enter para confirmar
+- **🔗 Enlaces universales**: Click en cualquier pana (online u offline) va a su perfil
 
 ### 🔎 Buscador de usuarios
 
@@ -207,6 +218,7 @@ const TEXTS = {
     REMOVE_FAVORITES: '💔 Remove Friends',
     ADD_MODAL_TITLE: '❤️‍🔥 Add New Buddy ❤️‍🔥',
     SEARCH_MODAL_TITLE: '🔍 Find User 🔍',
+    REMOVE_MODAL_SUBTITLE: 'Mark the buddies you want to remove',
     // ... resto de textos
 };
 ```
@@ -241,6 +253,9 @@ const TEXTS = {
 - **NUEVO**: Sistema completo de favoritos con persistencia
 - **NUEVO**: Gestión de usuarios offline en favoritos
 - **NUEVO**: Sistema de internacionalización con textos configurables
+- **MEJORADO**: Lógica de divorcio más segura y intuitiva
+- **MEJORADO**: Ordenación inteligente de favoritos (online primero)
+- **MEJORADO**: Enlaces universales a perfiles (online y offline)
 - Sistema de búsqueda con validación y feedback visual
 - Gestión de estados de scroll para UX mejorada
 - Manejo de errores de carga de imágenes
@@ -254,6 +269,8 @@ const TEXTS = {
 - **🎨 Efectos visuales**: Hover effects y transiciones suaves
 - **🧩 Interpolación de strings**: Sistema de templates para mensajes dinámicos
 - **🔒 Validación mejorada**: Manejo de casos edge y datos corruptos
+- **✅ UX mejorada**: Lógica de divorcio más intuitiva y segura
+- **📊 Ordenación inteligente**: Favoritos organizados por estado de conexión
 
 ### Optimizaciones de rendimiento
 
@@ -272,6 +289,7 @@ El script proporciona:
 - **Grid responsive**: Se adapta automáticamente al tamaño de pantalla
 - **Información de usuario**: Login y ID de estación claramente visible
 - **Estados visuales**: Diferenciación clara entre usuarios online y offline
+- **Ordenación inteligente**: Favoritos online aparecen primero
 
 ### Controles de navegación
 - **Botones de filtro**: Interfaz intuitiva con feedback visual y estados especiales
@@ -284,6 +302,7 @@ El script proporciona:
 - **🌈 Estados especiales**: Botón de favoritos con color distintivo
 - **📋 Modales mejorados**: Diseño consistente y accesible
 - **✨ Transiciones**: Animaciones suaves en todas las interacciones
+- **🔒 Interfaz de divorcio mejorada**: Lógica más segura e intuitiva
 
 ## 🤝 Contribuir
 
@@ -298,6 +317,9 @@ El script proporciona:
 ### Ideas para futuras mejoras 
 
 - [x] ~~Sección de usuarios favoritos~~ ✅ **¡Implementado en v42.4.2!**
+- [x] ~~Mejorar UX del sistema de divorcio~~ ✅ **¡Implementado en v42.4.2!**
+- [x] ~~Ordenación de favoritos por estado~~ ✅ **¡Implementado en v42.4.2!**
+- [x] ~~Enlaces a perfiles para usuarios offline~~ ✅ **¡Implementado en v42.4.2!**
 - [ ] Exportar/importar lista de favoritos
 - [ ] Notificaciones cuando favoritos se conectan
 - [ ] Estadísticas de tiempo de conexión
@@ -315,6 +337,8 @@ El script proporciona:
 - Los filtros por clúster funcionan con el patrón estándar de IDs de 42
 - **NUEVO**: Los favoritos se almacenan localmente usando la API de Tampermonkey/Violentmonkey
 - **NUEVO**: Los usuarios offline en favoritos muestran imágenes aleatorias únicas
+- **MEJORADO**: Los favoritos se ordenan automáticamente (conectados primero)
+- **MEJORADO**: Cualquier pana (online u offline) permite click para ir al perfil
 
 ## 🔧 Solución de problemas
 
@@ -340,6 +364,7 @@ El script proporciona:
 - **Favoritos perdidos**: Comprueba si Tampermonkey/Violentmonkey tiene suficiente espacio de almacenamiento
 - **Error al añadir**: Asegúrate de escribir usernames válidos sin espacios
 - **No aparecen botones**: Verifica que estés en la sección "❤️‍🔥 Los panas ❤️‍🔥"
+- **Problema con divorcio**: Si marcaste por error, simplemente desmarca las casillas
 
 ### Problemas en móvil
 - Asegúrate de usar Chrome con Tampermonkey instalado
@@ -364,13 +389,16 @@ Este script está diseñado específicamente para la red de escuelas 42. Si eres
 
 ## 📈 Changelog
 
-### v42.4.2 - Sistema de Favoritos y Mejoras
+### v42.4.2 - Sistema de Favoritos y Mejoras de UX
 - ✅ **NUEVO**: Sistema completo de favoritos "❤️‍🔥 Los panas ❤️‍🔥"
 - ✅ **NUEVO**: Gestión de usuarios offline en favoritos
 - ✅ **NUEVO**: Sistema de textos configurables para internacionalización
 - ✅ **NUEVO**: Interfaz de añadir/eliminar favoritos con validaciones
 - ✅ **NUEVO**: Persistencia de datos usando GM_setValue/GM_getValue
 - ✅ **NUEVO**: Efectos hover y transiciones mejoradas
+- ✅ **MEJORADO**: Lógica de divorcio más segura (desmarcado por defecto)
+- ✅ **MEJORADO**: Ordenación inteligente de favoritos (online primero)
+- ✅ **MEJORADO**: Enlaces universales (panas offline también clickeables)
 - ✅ **MEJORADO**: Arquitectura de código reorganizada y más mantenible
 - ✅ **MEJORADO**: Gestión de errores más robusta
 - ✅ **MEJORADO**: Interfaz responsive optimizada para móviles
