@@ -321,7 +321,7 @@ El script proporciona:
 - [x] ~~Ordenación de favoritos por estado~~ ✅ **¡Implementado en v42.4.2!**
 - [x] ~~Enlaces a perfiles para usuarios offline~~ ✅ **¡Implementado en v42.4.2!**
 - [ ] Exportar/importar lista de favoritos
-- [ ] Notificaciones cuando favoritos se conectan
+- [x] ~~Notificaciones cuando favoritos se conectan~~ ❌ **Limitado y coñazo, no mola**
 - [ ] Estadísticas de tiempo de conexión
 - [ ] Temas de colores personalizables
 - [ ] Integración con la API de 42 para más información
