@@ -17,16 +17,17 @@ console.log('Radiopatio 42 loaded!');
 const TEXTS = {
     // Botones principales / Main buttons
     MAIN_BUTTON: 'Lo mismo pero <span style="font-size: 22px;">grande</span>',
-    ALL_BUTTON: 'Todo 42',
-    CLUSTER_A_BUTTON: 'Clúster A',
-    CLUSTER_B_BUTTON: 'Clúster B',
+    ALL_BUTTON: 'Todo 42 🆎',
+    CLUSTER_A_BUTTON: 'Clúster 🅰️',
+    CLUSTER_B_BUTTON: 'Clúster 🅱️',
     FAVORITES_BUTTON: '❤️‍🔥 Los panas ❤️‍🔥',
 
     // Títulos dinámicos / Dynamic titles
     TITLE_USERS: '👨‍💻 patitos 👩‍💻',
     TITLE_FAVORITES: '❤️‍🔥 panas ❤️‍🔥',
-    TITLE_CLUSTER_A: ' en Clúster A',
-    TITLE_CLUSTER_B: ' en Clúster B',
+    TITLE_FAVORITES_ONLINE: '💚 conectados 💚', // Nuevo texto para panas conectados
+    TITLE_CLUSTER_A: ' en Clúster 🅰️',
+    TITLE_CLUSTER_B: ' en Clúster 🅱️',
     TITLE_PREFIX: 'Habemos',
 
     // Botones de favoritos / Favorites buttons
@@ -43,7 +44,7 @@ const TEXTS = {
 
     // Modal de eliminar favoritos / Remove favorites modal
     REMOVE_MODAL_TITLE: '💔 Divorcio de panas 💔',
-    REMOVE_MODAL_SUBTITLE: 'Desmarca los panas que sobran',
+    REMOVE_MODAL_SUBTITLE: 'Marca los panas de los que te quieres divorciar',
     REMOVE_MODAL_BUTTON: '💔 Confirmar divorcios 💔',
     REMOVE_NO_SELECTION: 'No has seleccionado ningún divorcio 😊',
     REMOVE_CONFIRM: '¿Estás seguro de que quieres divorciarte de: {users}? 💔',
@@ -238,6 +239,17 @@ setTimeout(() => {
                 filterText = TEXTS.TITLE_CLUSTER_B;
             } else if (currentFilter === 'favorites') {
                 emoji = TEXTS.TITLE_FAVORITES;
+
+                // Contar panas conectados (no offline)
+                const onlinePanas = filteredImages.filter(img => !img.isOffline).length;
+
+                // Crear el texto con el formato: "Habemos X ❤️‍🔥 panas ❤️‍🔥 (Y 💚 conectados 💚)"
+                if (onlinePanas > 0) {
+                    title.textContent = `${TEXTS.TITLE_PREFIX} ${filteredImages.length} ${emoji} (${onlinePanas} ${TEXTS.TITLE_FAVORITES_ONLINE})`;
+                } else {
+                    title.textContent = `${TEXTS.TITLE_PREFIX} ${filteredImages.length} ${emoji}`;
+                }
+                return; // Salir temprano para favorites
             }
 
             title.textContent = `${TEXTS.TITLE_PREFIX} ${filteredImages.length} ${emoji}${filterText}`;
@@ -360,7 +372,12 @@ setTimeout(() => {
                     }
                 });
 
-                return favoriteImages;
+                // Ordenar: conectados primero, luego offline
+                return favoriteImages.sort((a, b) => {
+                    if (a.isOffline && !b.isOffline) return 1;  // a offline va después
+                    if (!a.isOffline && b.isOffline) return -1; // a online va antes
+                    return 0; // mantener orden original si ambos tienen el mismo estado
+                });
             }
             return images.filter(imgData => imgData.id.toLowerCase().startsWith(currentFilter.toLowerCase()));
         };
@@ -378,7 +395,7 @@ setTimeout(() => {
             `;
 
             const link = document.createElement('a');
-            if (login !== 'Unknown' && !isOffline) {
+            if (login !== 'Unknown') {
                 link.href = `https://profile-v3.intra.42.fr/users/${login}`;
                 link.target = '_blank';
                 link.rel = 'noopener noreferrer';
@@ -412,7 +429,7 @@ setTimeout(() => {
             if (isOffline) {
                 info.innerHTML = `
                     <strong style="font-size: 14px; color: #ff69b4;">${TEXTS.USER_SLEEPING.replace('{login}', login)}</strong><br>
-                    <big>🔌 ${id} 🔌</big><br>
+                    <big>${id}</big><br>
                     <small style="color: #ff69b4;">${TEXTS.USER_OFFLINE_MESSAGE}</small>
                 `;
             } else {
@@ -555,7 +572,7 @@ setTimeout(() => {
             }, 100);
         };
 
-        // Function to show remove favorites modal
+        // Function to show remove favorites modal - NUEVA LÓGICA
         const showRemoveFavoritesModal = () => {
             const favorites = getFavorites();
             if (favorites.length === 0) {
@@ -609,7 +626,7 @@ setTimeout(() => {
                 checkbox.type = 'checkbox';
                 checkbox.id = `fav-${index}`;
                 checkbox.value = login;
-                checkbox.checked = true;
+                checkbox.checked = false; // CAMBIO: ahora false por defecto
                 checkbox.style.cssText = `
                     margin-right: 10px; width: 18px; height: 18px;
                 `;
@@ -637,8 +654,9 @@ setTimeout(() => {
             `;
 
             const performDivorce = () => {
+                // CAMBIO: ahora selecciona los marcados (checked) en lugar de los no marcados
                 const toRemove = checkboxes
-                    .filter(cb => !cb.checked)
+                    .filter(cb => cb.checked)
                     .map(cb => cb.value);
 
                 if (toRemove.length === 0) {
