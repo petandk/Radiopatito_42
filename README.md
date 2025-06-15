@@ -12,7 +12,7 @@ Un userscript para mejorar la visualización de usuarios en los clústeres de la
 
 **¿Quieres eliminarlo?** Si prefieres una versión más seria, sin bromas o en otro idioma, ve directamente a la sección **[🌍 Personalización e internacionalización](#-personalización-e-internacionalización)** donde se explica cómo cambiar todos los textos de la interfaz.
 
-**Créditos**: Este userscript empezó un día de aburrimiento con Claude Sonnet 4 de Claude.ai y poco a poco se ha ido puliendo y mejorando.
+**Créditos**: Este userscript empezó un día de aburrimiento con Claude Sonnet 4 de Claude.ai y poco a poco se ha ido puliendo y mejorando. El readme también lo he hecho yo, la Claude; tu IA de confianza 😘😘😘
 
 ---
 
