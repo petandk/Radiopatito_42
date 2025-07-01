@@ -4,9 +4,9 @@
 // @match       https://*.intra.42.fr/*
 // @grant       GM_setValue
 // @grant       GM_getValue
-// @version     42.4.3
+// @version     42.4.4
 // @author      you
-// @description Boooooooooooooooooooooooored - Now with Favorites and Navigation!
+// @description Boooooooooooooooooooooooored - Now with Favorites, Navigation and Side-by-Side!
 // ==/UserScript==
 
 console.log('Radiopatio 42 loaded!');
@@ -17,6 +17,7 @@ console.log('Radiopatio 42 loaded!');
 const TEXTS = {
     // Botones principales / Main buttons
     MAIN_BUTTON: 'Lo mismo pero <span style="font-size: 22px;">grande</span>',
+    SIDEBYSIDE_BUTTON: '<span style="font-size: 12px;">Lo mismo pero </span><span style="font-size: 6px;">pequeño</span>',
     NAVIGATION_BUTTON: 'Ir a <span style="font-size: 22px;">Clusters</span>',
     ALL_BUTTON: 'Todo 42 🆎',
     CLUSTER_A_BUTTON: 'Clúster 🅰️',
@@ -83,6 +84,154 @@ const isInClustersPage = () => {
 };
 
 // ═══════════════════════════════════════════════════════════════════
+// 🔄 FUNCIONALIDAD LADO A LADO / SIDE-BY-SIDE FUNCTIONALITY
+// ═══════════════════════════════════════════════════════════════════
+let sideBySideActive = false;
+let originalStyles = null;
+
+const makeTabPanesSideBySide = () => {
+    if (sideBySideActive) {
+        // Si ya está activo, revertir
+        restoreOriginalLayout();
+        return;
+    }
+
+    // Find the tab-content div
+    const tabContent = document.querySelector('.tab-content');
+    const mainContainer = document.querySelector("#main-container");
+
+    if (!tabContent) {
+        console.log('No .tab-content found');
+        return;
+    }
+
+    // Store original styles for restoration
+    if (!originalStyles) {
+        originalStyles = {
+            mainContainer: mainContainer ? mainContainer.style.display : '',
+            tabPanes: []
+        };
+    }
+
+    // Hide main container
+    if (mainContainer) {
+        mainContainer.style.display = "none";
+    }
+
+    // Find all tab-pane elements inside tab-content
+    const tabPanes = tabContent.querySelectorAll('.tab-pane');
+    if (tabPanes.length !== 2) {
+        console.log(`Expected 2 tab panes, found ${tabPanes.length}`);
+        return;
+    }
+
+    // Store original classes
+    tabPanes.forEach((pane, index) => {
+        originalStyles.tabPanes[index] = {
+            classList: Array.from(pane.classList)
+        };
+        pane.classList.add('active');
+    });
+
+    // Apply CSS styles for side-by-side layout
+    const styleId = 'radiopatito-sidebyside-style';
+    let existingStyle = document.getElementById(styleId);
+
+    if (!existingStyle) {
+        const style = document.createElement('style');
+        style.id = styleId;
+        style.textContent = `
+            .tab-content {
+                display: flex !important;
+                gap: 20px; /* Adjust spacing between panes */
+            }
+            .tab-content .tab-pane {
+                flex: 1 !important; /* Equal width for both panes */
+                display: block !important; /* Override any display: none */
+                opacity: 1 !important; /* Ensure visibility */
+                position: relative !important;
+            }
+            /* Make first tab pane appear on the right */
+            .tab-content .tab-pane:first-child {
+                order: 2;
+            }
+            /* Make second tab pane appear on the left */
+            .tab-content .tab-pane:last-child {
+                order: 1;
+            }
+            .radiopatito-cluster-label {
+                position: sticky !important;
+                top: 0 !important;
+                z-index: 1000 !important;
+                color: #02807c !important;
+                text-align: center !important;
+                padding: 10px !important;
+                font-weight: bold !important;
+                font-size: 18px !important;
+                margin-bottom: 15px !important;
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    // Add cluster labels
+    tabPanes.forEach((pane, index) => {
+        // Remove existing labels first
+        const existingLabel = pane.querySelector('.radiopatito-cluster-label');
+        if (existingLabel) {
+            existingLabel.remove();
+        }
+
+        // Create new label
+        const label = document.createElement('div');
+        label.className = 'radiopatito-cluster-label';
+
+        // First pane (index 0) will be on the right = Cluster A
+        // Second pane (index 1) will be on the left = Cluster B
+        label.textContent = index === 0 ? 'Clúster 🅰️' : 'Clúster 🅱️';
+
+        // Insert at the beginning of the pane
+        pane.insertBefore(label, pane.firstChild);
+    });
+
+    sideBySideActive = true;
+    console.log('Tab panes are now displayed side by side with first one on the right');
+};
+
+const restoreOriginalLayout = () => {
+    // Remove custom styles
+    const styleElement = document.getElementById('radiopatito-sidebyside-style');
+    if (styleElement) {
+        styleElement.remove();
+    }
+
+    // Remove cluster labels
+    document.querySelectorAll('.radiopatito-cluster-label').forEach(label => {
+        label.remove();
+    });
+
+    // Restore main container
+    const mainContainer = document.querySelector("#main-container");
+    if (mainContainer && originalStyles) {
+        mainContainer.style.display = originalStyles.mainContainer;
+    }
+
+    // Restore tab panes classes
+    const tabPanes = document.querySelectorAll('.tab-content .tab-pane');
+    tabPanes.forEach((pane, index) => {
+        if (originalStyles && originalStyles.tabPanes[index]) {
+            pane.className = ''; // Clear all classes
+            originalStyles.tabPanes[index].classList.forEach(cls => {
+                pane.classList.add(cls);
+            });
+        }
+    });
+
+    sideBySideActive = false;
+    console.log('Original layout restored');
+};
+
+// ═══════════════════════════════════════════════════════════════════
 // 💾 GESTIÓN DE FAVORITOS / FAVORITES MANAGEMENT
 // ═══════════════════════════════════════════════════════════════════
 const FAVORITES_KEY = 'radiopatio_favorites';
@@ -133,6 +282,15 @@ const navigateToClusters = () => {
 // 🎯 FUNCIÓN PRINCIPAL / MAIN FUNCTION
 // ═══════════════════════════════════════════════════════════════════
 setTimeout(() => {
+    // Base button styles
+    const baseButtonStyle = `
+        position: fixed; right: 20px; z-index: 99999;
+        background: #474b54; border: 1px solid #666; border-radius: 10px;
+        color: #02807c; background-color: #D8636F; font-weight: bold;
+        cursor: pointer; box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        transition: all 0.3s ease;
+    `;
+
     // Create main button
     const btn = document.createElement('button');
 
@@ -141,21 +299,46 @@ setTimeout(() => {
         // Estamos en clusters - botón original
         btn.innerHTML = TEXTS.MAIN_BUTTON;
         btn.onclick = showClustersGrid;
+
+        // Create side-by-side button (smaller, positioned above)
+        const sideBySideBtn = document.createElement('button');
+        sideBySideBtn.innerHTML = TEXTS.SIDEBYSIDE_BUTTON;
+        sideBySideBtn.onclick = makeTabPanesSideBySide;
+
+        // Style the side-by-side button (smaller size, positioned above main button)
+        sideBySideBtn.style.cssText = baseButtonStyle + `
+            bottom: 80px; /* Position above main button */
+            padding: 5px 8px; /* Smaller padding */
+            font-size: 10px; /* Smaller font size */
+        `;
+
+        // Add hover effects for side-by-side button
+        sideBySideBtn.addEventListener('mouseenter', () => {
+            sideBySideBtn.style.transform = 'scale(1.05)';
+            sideBySideBtn.style.boxShadow = '0 4px 15px rgba(0,0,0,0.4)';
+        });
+
+        sideBySideBtn.addEventListener('mouseleave', () => {
+            sideBySideBtn.style.transform = 'scale(1)';
+            sideBySideBtn.style.boxShadow = '0 2px 10px rgba(0,0,0,0.3)';
+        });
+
+        // Add the side-by-side button to the page
+        document.body.appendChild(sideBySideBtn);
     } else {
         // Estamos en otra página - botón de navegación
         btn.innerHTML = TEXTS.NAVIGATION_BUTTON;
         btn.onclick = navigateToClusters;
     }
 
-    btn.style.cssText = `
-        position: fixed; bottom: 20px; right: 20px; z-index: 99999;
-        background: #474b54; border: 1px solid #666; border-radius: 10px; padding: 10px 15px;
-        color: #02807c; background-color: #D8636F; font-size: 14px; font-weight: bold;
-        cursor: pointer; box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-        transition: all 0.3s ease;
+    // Style the main button
+    btn.style.cssText = baseButtonStyle + `
+        bottom: 20px;
+        padding: 10px 15px;
+        font-size: 14px;
     `;
 
-    // Efectos hover
+    // Efectos hover para el botón principal
     btn.addEventListener('mouseenter', () => {
         btn.style.transform = 'scale(1.05)';
         btn.style.boxShadow = '0 4px 15px rgba(0,0,0,0.4)';
@@ -167,6 +350,28 @@ setTimeout(() => {
     });
 
     document.body.appendChild(btn);
+
+    // Mutation observer for dynamic content (side-by-side functionality)
+    if (isInClustersPage()) {
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.addedNodes.length > 0) {
+                    // Check if new tab-content was added
+                    mutation.addedNodes.forEach(function(node) {
+                        if (node.nodeType === 1 && (node.classList?.contains('tab-content') || node.querySelector?.('.tab-content'))) {
+                            if (sideBySideActive) {
+                                setTimeout(makeTabPanesSideBySide, 100);
+                            }
+                        }
+                    });
+                }
+            });
+        });
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+    }
 
     function showClustersGrid() {
         // Find images
