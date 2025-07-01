@@ -4,7 +4,7 @@
 // @match       https://*.intra.42.fr/*
 // @grant       GM_setValue
 // @grant       GM_getValue
-// @version     42.4.4
+// @version     42.42.42.42.42.42.42.42.42.42.42.42.42.42.42.42.42.42.42.42.42.42.42.42.42.42.42.42.42.42.42.42.42.42.42.42.42.42.42.42.42.42
 // @author      you
 // @description Boooooooooooooooooooooooored - Now with Favorites, Navigation and Side-by-Side!
 // ==/UserScript==
@@ -269,19 +269,35 @@ const restoreOriginalLayout = () => {
 // Function to automatically enable side-by-side mode
 const autoEnableSideBySide = () => {
     if (isInClustersPage() && !sideBySideActive) {
-        // Wait a bit for the page to load
-        setTimeout(() => {
-            const tabContent = document.querySelector('.tab-content');
-            if (tabContent) {
-                makeTabPanesSideBySide();
-                console.log('Auto-enabled side-by-side mode');
-            } else {
-                // If tab-content not found, try again after a longer delay
-                setTimeout(autoEnableSideBySide, 10);
-            }
-        }, 500);
+        const tabContent = document.querySelector('.tab-content');
+        if (tabContent) {
+            makeTabPanesSideBySide();
+            console.log('Auto-enabled side-by-side mode');
+        } else {
+            // If tab-content not found, try again quickly
+            setTimeout(autoEnableSideBySide, 50);
+        }
     }
 };
+
+// Immediate check when script loads
+if (isInClustersPage()) {
+    autoEnableSideBySide();
+}
+
+// Also check when DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        if (isInClustersPage()) {
+            autoEnableSideBySide();
+        }
+    });
+} else {
+    // DOM is already ready
+    if (isInClustersPage()) {
+        autoEnableSideBySide();
+    }
+}
 
 // ═══════════════════════════════════════════════════════════════════
 // 💾 GESTIÓN DE FAVORITOS / FAVORITES MANAGEMENT
@@ -333,7 +349,7 @@ const navigateToClusters = () => {
 // ═══════════════════════════════════════════════════════════════════
 // 🎯 FUNCIÓN PRINCIPAL / MAIN FUNCTION
 // ═══════════════════════════════════════════════════════════════════
-setTimeout(() => {
+const initializeScript = () => {
     // Auto-enable side-by-side mode if on clusters page
     if (isInClustersPage()) {
         autoEnableSideBySide();
@@ -416,12 +432,10 @@ setTimeout(() => {
                     // Check if new tab-content was added
                     mutation.addedNodes.forEach(function(node) {
                         if (node.nodeType === 1 && (node.classList?.contains('tab-content') || node.querySelector?.('.tab-content'))) {
-                            // Automatically enable side-by-side for new content
-                            setTimeout(() => {
-                                if (!sideBySideActive) {
-                                    makeTabPanesSideBySide();
-                                }
-                            }, 10);
+                            // Automatically enable side-by-side for new content immediately
+                            if (!sideBySideActive) {
+                                makeTabPanesSideBySide();
+                            }
                         }
                     });
                 }
@@ -1184,4 +1198,15 @@ setTimeout(() => {
 
         console.log(`Radiopatio 42: Initialized with ${images.length} total images`);
     }
-}, 0);
+};
+
+// Initialize the script immediately
+initializeScript();
+
+// Also run when DOM is fully loaded as backup
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeScript);
+} else {
+    // DOM is already ready, run a quick check
+    setTimeout(initializeScript, 100);
+}
