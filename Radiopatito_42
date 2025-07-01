@@ -1,12 +1,12 @@
 // ==UserScript==
 // @name        Radiopatito 42
 // @namespace   Violentmonkey Scripts
-// @match       https://meta.intra.42.fr/clusters*
+// @match       https://*.intra.42.fr/*
 // @grant       GM_setValue
 // @grant       GM_getValue
-// @version     42.4.2
+// @version     42.4.3
 // @author      you
-// @description Boooooooooooooooooooooooored - Now with Favorites!
+// @description Boooooooooooooooooooooooored - Now with Favorites and Navigation!
 // ==/UserScript==
 
 console.log('Radiopatio 42 loaded!');
@@ -17,6 +17,7 @@ console.log('Radiopatio 42 loaded!');
 const TEXTS = {
     // Botones principales / Main buttons
     MAIN_BUTTON: 'Lo mismo pero <span style="font-size: 22px;">grande</span>',
+    NAVIGATION_BUTTON: 'Ir a <span style="font-size: 22px;">Clusters</span>',
     ALL_BUTTON: 'Todo 42 🆎',
     CLUSTER_A_BUTTON: 'Clúster 🅰️',
     CLUSTER_B_BUTTON: 'Clúster 🅱️',
@@ -72,6 +73,16 @@ const TEXTS = {
 };
 
 // ═══════════════════════════════════════════════════════════════════
+// 🧭 DETECCIÓN DE PÁGINA / PAGE DETECTION
+// ═══════════════════════════════════════════════════════════════════
+const isInClustersPage = () => {
+    // Debe estar en meta.intra.42.fr Y en la ruta /clusters
+    return window.location.hostname === 'meta.intra.42.fr' &&
+           (window.location.pathname.includes('/clusters') ||
+            window.location.href.includes('/clusters'));
+};
+
+// ═══════════════════════════════════════════════════════════════════
 // 💾 GESTIÓN DE FAVORITOS / FAVORITES MANAGEMENT
 // ═══════════════════════════════════════════════════════════════════
 const FAVORITES_KEY = 'radiopatio_favorites';
@@ -112,20 +123,52 @@ const removeFavorites = (loginsToRemove) => {
 };
 
 // ═══════════════════════════════════════════════════════════════════
+// 🧭 FUNCIÓN DE NAVEGACIÓN / NAVIGATION FUNCTION
+// ═══════════════════════════════════════════════════════════════════
+const navigateToClusters = () => {
+    window.location.href = 'https://meta.intra.42.fr/clusters';
+};
+
+// ═══════════════════════════════════════════════════════════════════
 // 🎯 FUNCIÓN PRINCIPAL / MAIN FUNCTION
 // ═══════════════════════════════════════════════════════════════════
 setTimeout(() => {
     // Create main button
     const btn = document.createElement('button');
-    btn.innerHTML = TEXTS.MAIN_BUTTON;
+
+    // Detectar si estamos en la página de clusters
+    if (isInClustersPage()) {
+        // Estamos en clusters - botón original
+        btn.innerHTML = TEXTS.MAIN_BUTTON;
+        btn.onclick = showClustersGrid;
+    } else {
+        // Estamos en otra página - botón de navegación
+        btn.innerHTML = TEXTS.NAVIGATION_BUTTON;
+        btn.onclick = navigateToClusters;
+    }
+
     btn.style.cssText = `
         position: fixed; bottom: 20px; right: 20px; z-index: 99999;
         background: #474b54; border: 1px solid #666; border-radius: 10px; padding: 10px 15px;
         color: #02807c; background-color: #D8636F; font-size: 14px; font-weight: bold;
         cursor: pointer; box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        transition: all 0.3s ease;
     `;
 
-    btn.onclick = () => {
+    // Efectos hover
+    btn.addEventListener('mouseenter', () => {
+        btn.style.transform = 'scale(1.05)';
+        btn.style.boxShadow = '0 4px 15px rgba(0,0,0,0.4)';
+    });
+
+    btn.addEventListener('mouseleave', () => {
+        btn.style.transform = 'scale(1)';
+        btn.style.boxShadow = '0 2px 10px rgba(0,0,0,0.3)';
+    });
+
+    document.body.appendChild(btn);
+
+    function showClustersGrid() {
         // Find images
         const images = Array.from(document.querySelectorAll('image[*|href]')).map(img => ({
             element: img,
@@ -572,7 +615,7 @@ setTimeout(() => {
             }, 100);
         };
 
-        // Function to show remove favorites modal - NUEVA LÓGICA
+        // Function to show remove favorites modal
         const showRemoveFavoritesModal = () => {
             const favorites = getFavorites();
             if (favorites.length === 0) {
@@ -626,7 +669,7 @@ setTimeout(() => {
                 checkbox.type = 'checkbox';
                 checkbox.id = `fav-${index}`;
                 checkbox.value = login;
-                checkbox.checked = false; // CAMBIO: ahora false por defecto
+                checkbox.checked = false;
                 checkbox.style.cssText = `
                     margin-right: 10px; width: 18px; height: 18px;
                 `;
@@ -654,7 +697,6 @@ setTimeout(() => {
             `;
 
             const performDivorce = () => {
-                // CAMBIO: ahora selecciona los marcados (checked) en lugar de los no marcados
                 const toRemove = checkboxes
                     .filter(cb => cb.checked)
                     .map(cb => cb.value);
@@ -876,7 +918,5 @@ setTimeout(() => {
         updateGrid();
 
         console.log(`Radiopatio 42: Initialized with ${images.length} total images`);
-    };
-
-    document.body.appendChild(btn);
+    }
 }, 1000);
