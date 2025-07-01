@@ -133,7 +133,7 @@ const makeTabPanesSideBySide = () => {
         pane.classList.add('active');
     });
 
-    // Apply CSS styles for side-by-side layout
+    // Apply CSS styles for side-by-side layout with smaller content
     const styleId = 'radiopatito-sidebyside-style';
     let existingStyle = document.getElementById(styleId);
 
@@ -143,13 +143,20 @@ const makeTabPanesSideBySide = () => {
         style.textContent = `
             .tab-content {
                 display: flex !important;
-                gap: 20px; /* Adjust spacing between panes */
+                gap: 10px !important; /* Reduced gap */
+                height: 100vh !important; /* Full viewport height */
+                overflow: hidden !important; /* Prevent page scrolling */
             }
             .tab-content .tab-pane {
                 flex: 1 !important; /* Equal width for both panes */
                 display: block !important; /* Override any display: none */
                 opacity: 1 !important; /* Ensure visibility */
                 position: relative !important;
+                overflow-y: auto !important; /* Allow scrolling within pane */
+                height: 100% !important;
+                transform: scale(0.85) !important; /* Scale down content */
+                transform-origin: top left !important;
+                width: 117.647% !important; /* Compensate for scaling (1/0.85) */
             }
             /* Make first tab pane appear on the right */
             .tab-content .tab-pane:first-child {
@@ -165,14 +172,39 @@ const makeTabPanesSideBySide = () => {
                 z-index: 1000 !important;
                 color: #02807c !important;
                 text-align: center !important;
-                padding: 10px !important;
+                padding: 5px !important; /* Reduced padding */
                 font-weight: bold !important;
-                font-size: 18px !important;
-                margin-bottom: 15px !important;
+                font-size: 14px !important; /* Smaller font */
+                margin-bottom: 10px !important; /* Reduced margin */
+                background: rgba(71, 75, 84, 0.9) !important; /* Semi-transparent background */
+                backdrop-filter: blur(5px) !important;
+            }
+            /* Additional styles to make content more compact */
+            .tab-content .tab-pane * {
+                font-size: smaller !important;
+            }
+            .tab-content .tab-pane .container-fluid {
+                padding: 5px !important;
+            }
+            .tab-content .tab-pane .row {
+                margin: 2px 0 !important;
+            }
+            .tab-content .tab-pane .col-xs-2,
+            .tab-content .tab-pane .col-sm-2,
+            .tab-content .tab-pane .col-md-2,
+            .tab-content .tab-pane .col-lg-2 {
+                padding: 1px !important;
+            }
+            /* Ensure body doesn't scroll when side-by-side is active */
+            body.radiopatito-sidebyside {
+                overflow: hidden !important;
             }
         `;
         document.head.appendChild(style);
     }
+
+    // Add body class to prevent scrolling
+    document.body.classList.add('radiopatito-sidebyside');
 
     // Add cluster labels
     tabPanes.forEach((pane, index) => {
@@ -195,7 +227,7 @@ const makeTabPanesSideBySide = () => {
     });
 
     sideBySideActive = true;
-    console.log('Tab panes are now displayed side by side with first one on the right');
+    console.log('Tab panes are now displayed side by side with compact layout');
 };
 
 const restoreOriginalLayout = () => {
@@ -204,6 +236,9 @@ const restoreOriginalLayout = () => {
     if (styleElement) {
         styleElement.remove();
     }
+
+    // Remove body class
+    document.body.classList.remove('radiopatito-sidebyside');
 
     // Remove cluster labels
     document.querySelectorAll('.radiopatito-cluster-label').forEach(label => {
@@ -229,6 +264,23 @@ const restoreOriginalLayout = () => {
 
     sideBySideActive = false;
     console.log('Original layout restored');
+};
+
+// Function to automatically enable side-by-side mode
+const autoEnableSideBySide = () => {
+    if (isInClustersPage() && !sideBySideActive) {
+        // Wait a bit for the page to load
+        setTimeout(() => {
+            const tabContent = document.querySelector('.tab-content');
+            if (tabContent) {
+                makeTabPanesSideBySide();
+                console.log('Auto-enabled side-by-side mode');
+            } else {
+                // If tab-content not found, try again after a longer delay
+                setTimeout(autoEnableSideBySide, 10);
+            }
+        }, 500);
+    }
 };
 
 // ═══════════════════════════════════════════════════════════════════
@@ -282,6 +334,11 @@ const navigateToClusters = () => {
 // 🎯 FUNCIÓN PRINCIPAL / MAIN FUNCTION
 // ═══════════════════════════════════════════════════════════════════
 setTimeout(() => {
+    // Auto-enable side-by-side mode if on clusters page
+    if (isInClustersPage()) {
+        autoEnableSideBySide();
+    }
+
     // Base button styles
     const baseButtonStyle = `
         position: fixed; right: 20px; z-index: 99999;
@@ -300,7 +357,7 @@ setTimeout(() => {
         btn.innerHTML = TEXTS.MAIN_BUTTON;
         btn.onclick = showClustersGrid;
 
-        // Create side-by-side button (smaller, positioned above)
+        // Create side-by-side button (smaller, positioned above) - now for toggling
         const sideBySideBtn = document.createElement('button');
         sideBySideBtn.innerHTML = TEXTS.SIDEBYSIDE_BUTTON;
         sideBySideBtn.onclick = makeTabPanesSideBySide;
@@ -359,9 +416,12 @@ setTimeout(() => {
                     // Check if new tab-content was added
                     mutation.addedNodes.forEach(function(node) {
                         if (node.nodeType === 1 && (node.classList?.contains('tab-content') || node.querySelector?.('.tab-content'))) {
-                            if (sideBySideActive) {
-                                setTimeout(makeTabPanesSideBySide, 100);
-                            }
+                            // Automatically enable side-by-side for new content
+                            setTimeout(() => {
+                                if (!sideBySideActive) {
+                                    makeTabPanesSideBySide();
+                                }
+                            }, 10);
                         }
                     });
                 }
@@ -1124,4 +1184,4 @@ setTimeout(() => {
 
         console.log(`Radiopatio 42: Initialized with ${images.length} total images`);
     }
-}, 1000);
+}, 0);
