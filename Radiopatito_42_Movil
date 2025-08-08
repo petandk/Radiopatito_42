@@ -1,13 +1,15 @@
 // ==UserScript==
-// @name        Radiopatito 42 - Phone
+// @name        Radiopatito 42 Mobile
 // @namespace   Violentmonkey Scripts
-// @match       https://meta.intra.42.fr/clusters*
-// @version     42.4.2
+// @match       https://*.intra.42.fr/*
+// @grant       GM_setValue
+// @grant       GM_getValue
+// @version     42.4.2-mobile
 // @author      you
-// @description Boooooooooooooooooooooooored - Versión movil sin favoritos
+// @description Boooooooooooooooooooooooored - Mobile version without favorites
 // ==/UserScript==
 
-console.log('Radiopatio 42 Clean loaded!');
+console.log('Radiopatio 42 Mobile loaded!');
 
 // ═══════════════════════════════════════════════════════════════════
 // 🌍 CONFIGURACIÓN DE IDIOMA / LANGUAGE CONFIGURATION
@@ -15,14 +17,16 @@ console.log('Radiopatio 42 Clean loaded!');
 const TEXTS = {
     // Botones principales / Main buttons
     MAIN_BUTTON: 'Lo mismo pero <span style="font-size: 22px;">grande</span>',
-    ALL_BUTTON: 'Todo 42',
-    CLUSTER_A_BUTTON: 'Clúster A',
-    CLUSTER_B_BUTTON: 'Clúster B',
+    SIDEBYSIDE_BUTTON: 'Back 2 default',
+    NAVIGATION_BUTTON: 'Ir a <span style="font-size: 22px;">Clusters</span>',
+    ALL_BUTTON: 'Todo 42 🆎',
+    CLUSTER_A_BUTTON: 'Clúster 🅰️',
+    CLUSTER_B_BUTTON: 'Clúster 🅱️',
 
     // Títulos dinámicos / Dynamic titles
     TITLE_USERS: '👨‍💻 patitos 👩‍💻',
-    TITLE_CLUSTER_A: ' en Clúster A',
-    TITLE_CLUSTER_B: ' en Clúster B',
+    TITLE_CLUSTER_A: ' en Clúster 🅰️',
+    TITLE_CLUSTER_B: ' en Clúster 🅱️',
     TITLE_PREFIX: 'Habemos',
 
     // Modal de búsqueda / Search modal
@@ -35,26 +39,349 @@ const TEXTS = {
     SEARCH_RANDOM_USER: '🤷‍♂️ Usuario desconocido 🤷‍♀️',
     SEARCH_RANDOM_SUBTITLE: 'Imagen aleatoria de consolación',
 
+    // Estados de usuario / User states
+    USER_OFFLINE: '🔌 Offline 🔌',
+
     // Errores / Errors
     NO_IMAGES_FOUND: 'No images found!',
     IMAGE_LOAD_ERROR: 'Image failed to load'
 };
 
 // ═══════════════════════════════════════════════════════════════════
+// 🧭 DETECCIÓN DE PÁGINA / PAGE DETECTION
+// ═══════════════════════════════════════════════════════════════════
+const isInClustersPage = () => {
+    // Debe estar en meta.intra.42.fr Y en la ruta /clusters
+    return window.location.hostname === 'meta.intra.42.fr' &&
+           (window.location.pathname.includes('/clusters') ||
+            window.location.href.includes('/clusters'));
+};
+
+// ═══════════════════════════════════════════════════════════════════
+// 🔄 FUNCIONALIDAD LADO A LADO / SIDE-BY-SIDE FUNCTIONALITY
+// ═══════════════════════════════════════════════════════════════════
+let sideBySideActive = false;
+let originalStyles = null;
+
+const makeTabPanesSideBySide = () => {
+    if (sideBySideActive) {
+        // Si ya está activo, revertir
+        restoreOriginalLayout();
+        return;
+    }
+
+    // Find the tab-content div
+    const tabContent = document.querySelector('.tab-content');
+    const mainContainer = document.querySelector("#main-container");
+
+    if (!tabContent) {
+        console.log('No .tab-content found');
+        return;
+    }
+
+    // Store original styles for restoration
+    if (!originalStyles) {
+        originalStyles = {
+            mainContainer: mainContainer ? mainContainer.style.display : '',
+            tabPanes: []
+        };
+    }
+
+    // Hide main container
+    if (mainContainer) {
+        mainContainer.style.display = "none";
+    }
+
+    // Find all tab-pane elements inside tab-content
+    const tabPanes = tabContent.querySelectorAll('.tab-pane');
+    if (tabPanes.length !== 2) {
+        console.log(`Expected 2 tab panes, found ${tabPanes.length}`);
+        return;
+    }
+
+    // Store original classes
+    tabPanes.forEach((pane, index) => {
+        originalStyles.tabPanes[index] = {
+            classList: Array.from(pane.classList)
+        };
+        pane.classList.add('active');
+    });
+
+    // Apply CSS styles for side-by-side layout with smaller content
+    const styleId = 'radiopatito-sidebyside-style';
+    let existingStyle = document.getElementById(styleId);
+
+    if (!existingStyle) {
+        const style = document.createElement('style');
+        style.id = styleId;
+        style.textContent = `
+            .tab-content {
+                display: flex !important;
+                gap: 10px !important; /* Reduced gap */
+                height: 100vh !important; /* Full viewport height */
+                overflow: hidden !important; /* Prevent page scrolling */
+            }
+            .tab-content .tab-pane {
+                flex: 1 !important; /* Equal width for both panes */
+                display: block !important; /* Override any display: none */
+                opacity: 1 !important; /* Ensure visibility */
+                position: relative !important;
+                overflow-y: auto !important; /* Allow scrolling within pane */
+                height: 100% !important;
+                transform: scale(0.85) !important; /* Scale down content */
+                transform-origin: top left !important;
+                width: 117.647% !important; /* Compensate for scaling (1/0.85) */
+            }
+            /* Make first tab pane appear on the right */
+            .tab-content .tab-pane:first-child {
+                order: 2;
+            }
+            /* Make second tab pane appear on the left */
+            .tab-content .tab-pane:last-child {
+                order: 1;
+            }
+            .radiopatito-cluster-label {
+                position: sticky !important;
+                top: 0 !important;
+                z-index: 1000 !important;
+                color: #02807c !important;
+                text-align: center !important;
+                padding: 5px !important; /* Reduced padding */
+                font-weight: bold !important;
+                font-size: 14px !important; /* Smaller font */
+                margin-bottom: 10px !important; /* Reduced margin */
+                background: rgba(71, 75, 84, 0.9) !important; /* Semi-transparent background */
+                backdrop-filter: blur(5px) !important;
+            }
+            /* Additional styles to make content more compact */
+            .tab-content .tab-pane * {
+                font-size: smaller !important;
+            }
+            .tab-content .tab-pane .container-fluid {
+                padding: 5px !important;
+            }
+            .tab-content .tab-pane .row {
+                margin: 2px 0 !important;
+            }
+            .tab-content .tab-pane .col-xs-2,
+            .tab-content .tab-pane .col-sm-2,
+            .tab-content .tab-pane .col-md-2,
+            .tab-content .tab-pane .col-lg-2 {
+                padding: 1px !important;
+            }
+            /* Ensure body doesn't scroll when side-by-side is active */
+            body.radiopatito-sidebyside {
+                overflow: hidden !important;
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    // Add body class to prevent scrolling
+    document.body.classList.add('radiopatito-sidebyside');
+
+    // Add cluster labels
+    tabPanes.forEach((pane, index) => {
+        // Remove existing labels first
+        const existingLabel = pane.querySelector('.radiopatito-cluster-label');
+        if (existingLabel) {
+            existingLabel.remove();
+        }
+
+        // Create new label
+        const label = document.createElement('div');
+        label.className = 'radiopatito-cluster-label';
+
+        // First pane (index 0) will be on the right = Cluster A
+        // Second pane (index 1) will be on the left = Cluster B
+        label.textContent = index === 0 ? 'Clúster 🅰️' : 'Clúster 🅱️';
+
+        // Insert at the beginning of the pane
+        pane.insertBefore(label, pane.firstChild);
+    });
+
+    sideBySideActive = true;
+    console.log('Tab panes are now displayed side by side with compact layout');
+};
+
+const restoreOriginalLayout = () => {
+    // Remove custom styles
+    const styleElement = document.getElementById('radiopatito-sidebyside-style');
+    if (styleElement) {
+        styleElement.remove();
+    }
+
+    // Remove body class
+    document.body.classList.remove('radiopatito-sidebyside');
+
+    // Remove cluster labels
+    document.querySelectorAll('.radiopatito-cluster-label').forEach(label => {
+        label.remove();
+    });
+
+    // Restore main container
+    const mainContainer = document.querySelector("#main-container");
+    if (mainContainer && originalStyles) {
+        mainContainer.style.display = originalStyles.mainContainer;
+    }
+
+    // Restore tab panes classes
+    const tabPanes = document.querySelectorAll('.tab-content .tab-pane');
+    tabPanes.forEach((pane, index) => {
+        if (originalStyles && originalStyles.tabPanes[index]) {
+            pane.className = ''; // Clear all classes
+            originalStyles.tabPanes[index].classList.forEach(cls => {
+                pane.classList.add(cls);
+            });
+        }
+    });
+
+    sideBySideActive = false;
+    console.log('Original layout restored');
+};
+
+// Function to automatically enable side-by-side mode
+const autoEnableSideBySide = () => {
+    if (isInClustersPage() && !sideBySideActive) {
+        const tabContent = document.querySelector('.tab-content');
+        if (tabContent) {
+            makeTabPanesSideBySide();
+            console.log('Auto-enabled side-by-side mode');
+        } else {
+            // If tab-content not found, try again quickly
+            setTimeout(autoEnableSideBySide, 50);
+        }
+    }
+};
+
+// Immediate check when script loads
+if (isInClustersPage()) {
+    autoEnableSideBySide();
+}
+
+// Also check when DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        if (isInClustersPage()) {
+            autoEnableSideBySide();
+        }
+    });
+} else {
+    // DOM is already ready
+    if (isInClustersPage()) {
+        autoEnableSideBySide();
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// 🧭 FUNCIÓN DE NAVEGACIÓN / NAVIGATION FUNCTION
+// ═══════════════════════════════════════════════════════════════════
+const navigateToClusters = () => {
+    window.location.href = 'https://meta.intra.42.fr/clusters';
+};
+
+// ═══════════════════════════════════════════════════════════════════
 // 🎯 FUNCIÓN PRINCIPAL / MAIN FUNCTION
 // ═══════════════════════════════════════════════════════════════════
-setTimeout(() => {
-    // Create main button
-    const btn = document.createElement('button');
-    btn.innerHTML = TEXTS.MAIN_BUTTON;
-    btn.style.cssText = `
-        position: fixed; bottom: 20px; right: 20px; z-index: 99999;
-        background: #474b54; border: 1px solid #666; border-radius: 10px; padding: 10px 15px;
-        color: #02807c; background-color: #D8636F; font-size: 14px; font-weight: bold;
+const initializeScript = () => {
+    // Auto-enable side-by-side mode if on clusters page
+    if (isInClustersPage()) {
+        autoEnableSideBySide();
+    }
+
+    // Base button styles
+    const baseButtonStyle = `
+        position: fixed; right: 20px; z-index: 99999;
+        background: #474b54; border: 1px solid #666; border-radius: 10px;
+        color: #02807c; background-color: #D8636F; font-weight: bold;
         cursor: pointer; box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        transition: all 0.3s ease;
     `;
 
-    btn.onclick = () => {
+    // Create main button
+    const btn = document.createElement('button');
+
+    // Detectar si estamos en la página de clusters
+    if (isInClustersPage()) {
+        // Estamos en clusters - botón original
+        btn.innerHTML = TEXTS.MAIN_BUTTON;
+        btn.onclick = showClustersGrid;
+
+        // Create side-by-side button (smaller, positioned above) - now for toggling
+        const sideBySideBtn = document.createElement('button');
+        sideBySideBtn.innerHTML = TEXTS.SIDEBYSIDE_BUTTON;
+        sideBySideBtn.onclick = makeTabPanesSideBySide;
+
+        // Style the side-by-side button (smaller size, positioned above main button)
+        sideBySideBtn.style.cssText = baseButtonStyle + `
+            bottom: 80px; /* Position above main button */
+            padding: 5px 8px; /* Smaller padding */
+            font-size: 10px; /* Smaller font size */
+        `;
+
+        // Add hover effects for side-by-side button
+        sideBySideBtn.addEventListener('mouseenter', () => {
+            sideBySideBtn.style.transform = 'scale(1.05)';
+            sideBySideBtn.style.boxShadow = '0 4px 15px rgba(0,0,0,0.4)';
+        });
+
+        sideBySideBtn.addEventListener('mouseleave', () => {
+            sideBySideBtn.style.transform = 'scale(1)';
+            sideBySideBtn.style.boxShadow = '0 2px 10px rgba(0,0,0,0.3)';
+        });
+
+        // Add the side-by-side button to the page
+        document.body.appendChild(sideBySideBtn);
+    } else {
+        // Estamos en otra página - botón de navegación
+        btn.innerHTML = TEXTS.NAVIGATION_BUTTON;
+        btn.onclick = navigateToClusters;
+    }
+
+    // Style the main button
+    btn.style.cssText = baseButtonStyle + `
+        bottom: 20px;
+        padding: 10px 15px;
+        font-size: 14px;
+    `;
+
+    // Efectos hover para el botón principal
+    btn.addEventListener('mouseenter', () => {
+        btn.style.transform = 'scale(1.05)';
+        btn.style.boxShadow = '0 4px 15px rgba(0,0,0,0.4)';
+    });
+
+    btn.addEventListener('mouseleave', () => {
+        btn.style.transform = 'scale(1)';
+        btn.style.boxShadow = '0 2px 10px rgba(0,0,0,0.3)';
+    });
+
+    document.body.appendChild(btn);
+
+    // Mutation observer for dynamic content (side-by-side functionality)
+    if (isInClustersPage()) {
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.addedNodes.length > 0) {
+                    // Check if new tab-content was added
+                    mutation.addedNodes.forEach(function(node) {
+                        if (node.nodeType === 1 && (node.classList?.contains('tab-content') || node.querySelector?.('.tab-content'))) {
+                            // Automatically enable side-by-side for new content immediately
+                            if (!sideBySideActive) {
+                                makeTabPanesSideBySide();
+                            }
+                        }
+                    });
+                }
+            });
+        });
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+    }
+
+    function showClustersGrid() {
         // Find images
         const images = Array.from(document.querySelectorAll('image[*|href]')).map(img => ({
             element: img,
@@ -107,7 +434,9 @@ setTimeout(() => {
                 padding: 8px 16px; border: 1px solid #666; border-radius: 6px;
                 font-size: 14px; font-weight: bold; cursor: pointer;
                 transition: all 0.3s ease; white-space: nowrap;
-                ${filter === currentFilter ? 'background: #D8636F; color: #02807c;' : 'background: #3a3e47; color: #cccccc;'}
+                ${filter === currentFilter ?
+                    'background: #D8636F; color: #02807c;' :
+                    'background: #3a3e47; color: #cccccc;'}
             `;
 
             button.onclick = () => {
@@ -154,6 +483,7 @@ setTimeout(() => {
         // Function to update title based on filter
         const updateTitle = (filteredImages) => {
             let filterText = '';
+            let emoji = TEXTS.TITLE_USERS;
 
             if (currentFilter === 'car') {
                 filterText = TEXTS.TITLE_CLUSTER_A;
@@ -161,7 +491,7 @@ setTimeout(() => {
                 filterText = TEXTS.TITLE_CLUSTER_B;
             }
 
-            title.textContent = `${TEXTS.TITLE_PREFIX} ${filteredImages.length} ${TEXTS.TITLE_USERS}${filterText}`;
+            title.textContent = `${TEXTS.TITLE_PREFIX} ${filteredImages.length} ${emoji}${filterText}`;
         };
 
         // Create search button
@@ -459,7 +789,16 @@ setTimeout(() => {
         updateGrid();
 
         console.log(`Radiopatio 42: Initialized with ${images.length} total images`);
-    };
+    }
+};
 
-    document.body.appendChild(btn);
-}, 1000);
+// Initialize the script immediately
+initializeScript();
+
+// Also run when DOM is fully loaded as backup
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeScript);
+} else {
+    // DOM is already ready, run a quick check
+    setTimeout(initializeScript, 100);
+}
