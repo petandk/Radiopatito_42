@@ -1,638 +1,150 @@
 // ==UserScript==
-// @name        Radiopatito 42 Mobile
+// @name        Radiopatito 42 Minimal
 // @namespace   Violentmonkey Scripts
 // @match       https://*.intra.42.fr/*
 // @grant       none
-// @version     42.4.4-mobile
+// @version     1.0
 // @author      you
-// @description Boooooooooooooooooooooooored - Mobile version without favorites
+// @description Simple mobile version
 // ==/UserScript==
 
-console.log('Radiopatio 42 Mobile loaded!');
-
-var TEXTS = {
-    MAIN_BUTTON: 'Lo mismo pero <span style="font-size: 22px;">grande</span>',
-    SIDEBYSIDE_BUTTON: 'Back 2 default',
-    NAVIGATION_BUTTON: 'Ir a <span style="font-size: 22px;">Clusters</span>',
-    ALL_BUTTON: 'Todo 42 AB',
-    CLUSTER_A_BUTTON: 'Cluster A',
-    CLUSTER_B_BUTTON: 'Cluster B',
-    TITLE_USERS: 'patitos',
-    TITLE_CLUSTER_A: ' en Cluster A',
-    TITLE_CLUSTER_B: ' en Cluster B',
-    TITLE_PREFIX: 'Habemos',
-    SEARCH_MODAL_TITLE: 'Buscar Patito',
-    SEARCH_PLACEHOLDER: 'A quien busca?',
-    SEARCH_BUTTON: 'Buscar',
-    SEARCH_FOUND: 'Patito encontrado!',
-    SEARCH_NOT_FOUND: 'Patito no encontrado',
-    SEARCH_ERROR_EMPTY: 'Por favor escribe un login',
-    SEARCH_RANDOM_USER: 'Usuario desconocido',
-    SEARCH_RANDOM_SUBTITLE: 'Imagen aleatoria de consolacion',
-    NO_IMAGES_FOUND: 'No images found!',
-    IMAGE_LOAD_ERROR: 'Image failed to load'
-};
-
-function isInClustersPage() {
-    return window.location.hostname === 'meta.intra.42.fr' &&
-           (window.location.pathname.indexOf('/clusters') !== -1 ||
-            window.location.href.indexOf('/clusters') !== -1);
-}
-
-var sideBySideActive = false;
-var originalStyles = null;
-
-function makeTabPanesSideBySide() {
-    if (sideBySideActive) {
-        restoreOriginalLayout();
-        return;
+(function() {
+    'use strict';
+    
+    console.log('Radiopatito loaded');
+    
+    // Simple check for clusters page
+    function isClustersPage() {
+        return window.location.href.indexOf('/clusters') > -1;
     }
-
-    var tabContent = document.querySelector('.tab-content');
-    var mainContainer = document.querySelector("#main-container");
-
-    if (!tabContent) {
-        console.log('No .tab-content found');
-        return;
-    }
-
-    if (!originalStyles) {
-        originalStyles = {
-            mainContainer: mainContainer ? mainContainer.style.display : '',
-            tabPanes: []
-        };
-    }
-
-    if (mainContainer) {
-        mainContainer.style.display = "none";
-    }
-
-    var tabPanes = tabContent.querySelectorAll('.tab-pane');
-    if (tabPanes.length !== 2) {
-        console.log('Expected 2 tab panes, found ' + tabPanes.length);
-        return;
-    }
-
-    for (var i = 0; i < tabPanes.length; i++) {
-        var pane = tabPanes[i];
-        originalStyles.tabPanes[i] = {
-            classList: Array.from ? Array.from(pane.classList) : [].slice.call(pane.classList)
-        };
-        pane.classList.add('active');
-    }
-
-    var styleId = 'radiopatito-sidebyside-style';
-    var existingStyle = document.getElementById(styleId);
-
-    if (!existingStyle) {
-        var style = document.createElement('style');
-        style.id = styleId;
-        style.textContent = [
-            '.tab-content {',
-                'display: flex !important;',
-                'gap: 10px !important;',
-                'height: 100vh !important;',
-                'overflow: hidden !important;',
-            '}',
-            '.tab-content .tab-pane {',
-                'flex: 1 !important;',
-                'display: block !important;',
-                'opacity: 1 !important;',
-                'position: relative !important;',
-                'overflow-y: auto !important;',
-                'height: 100% !important;',
-                'transform: scale(0.85) !important;',
-                'transform-origin: top left !important;',
-                'width: 117.647% !important;',
-            '}',
-            '.tab-content .tab-pane:first-child {',
-                'order: 2;',
-            '}',
-            '.tab-content .tab-pane:last-child {',
-                'order: 1;',
-            '}',
-            '.radiopatito-cluster-label {',
-                'position: sticky !important;',
-                'top: 0 !important;',
-                'z-index: 1000 !important;',
-                'color: #02807c !important;',
-                'text-align: center !important;',
-                'padding: 5px !important;',
-                'font-weight: bold !important;',
-                'font-size: 14px !important;',
-                'margin-bottom: 10px !important;',
-                'background: rgba(71, 75, 84, 0.9) !important;',
-                'backdrop-filter: blur(5px) !important;',
-            '}',
-            'body.radiopatito-sidebyside {',
-                'overflow: hidden !important;',
-            '}'
-        ].join('\n');
-        document.head.appendChild(style);
-    }
-
-    document.body.classList.add('radiopatito-sidebyside');
-
-    for (var i = 0; i < tabPanes.length; i++) {
-        var pane = tabPanes[i];
-        var existingLabel = pane.querySelector('.radiopatito-cluster-label');
-        if (existingLabel) {
-            existingLabel.remove();
-        }
-
-        var label = document.createElement('div');
-        label.className = 'radiopatito-cluster-label';
-        label.textContent = i === 0 ? 'Cluster A' : 'Cluster B';
-        pane.insertBefore(label, pane.firstChild);
-    }
-
-    sideBySideActive = true;
-    console.log('Tab panes are now displayed side by side');
-}
-
-function restoreOriginalLayout() {
-    var styleElement = document.getElementById('radiopatito-sidebyside-style');
-    if (styleElement) {
-        styleElement.remove();
-    }
-
-    document.body.classList.remove('radiopatito-sidebyside');
-
-    var labels = document.querySelectorAll('.radiopatito-cluster-label');
-    for (var i = 0; i < labels.length; i++) {
-        labels[i].remove();
-    }
-
-    var mainContainer = document.querySelector("#main-container");
-    if (mainContainer && originalStyles) {
-        mainContainer.style.display = originalStyles.mainContainer;
-    }
-
-    var tabPanes = document.querySelectorAll('.tab-content .tab-pane');
-    for (var i = 0; i < tabPanes.length; i++) {
-        var pane = tabPanes[i];
-        if (originalStyles && originalStyles.tabPanes[i]) {
-            pane.className = '';
-            var classList = originalStyles.tabPanes[i].classList;
-            for (var j = 0; j < classList.length; j++) {
-                pane.classList.add(classList[j]);
-            }
-        }
-    }
-
-    sideBySideActive = false;
-    console.log('Original layout restored');
-}
-
-function autoEnableSideBySide() {
-    if (isInClustersPage() && !sideBySideActive) {
-        var tabContent = document.querySelector('.tab-content');
-        if (tabContent) {
-            makeTabPanesSideBySide();
-            console.log('Auto-enabled side-by-side mode');
+    
+    // Create simple button
+    function createButton() {
+        var btn = document.createElement('button');
+        btn.textContent = isClustersPage() ? 'Show Grid' : 'Go to Clusters';
+        btn.style.position = 'fixed';
+        btn.style.bottom = '20px';
+        btn.style.right = '20px';
+        btn.style.zIndex = '99999';
+        btn.style.padding = '10px';
+        btn.style.background = '#D8636F';
+        btn.style.color = 'white';
+        btn.style.border = 'none';
+        btn.style.borderRadius = '5px';
+        btn.style.cursor = 'pointer';
+        
+        if (isClustersPage()) {
+            btn.onclick = showGrid;
         } else {
-            setTimeout(autoEnableSideBySide, 50);
+            btn.onclick = function() {
+                window.location.href = 'https://meta.intra.42.fr/clusters';
+            };
         }
-    }
-}
-
-function navigateToClusters() {
-    window.location.href = 'https://meta.intra.42.fr/clusters';
-}
-
-function showClustersGrid() {
-    var images = [];
-    var imageElements = document.querySelectorAll('image[*|href]');
-    
-    for (var i = 0; i < imageElements.length; i++) {
-        var img = imageElements[i];
-        var href = img.getAttributeNS('http://www.w3.org/1999/xlink', 'href') ||
-                  img.getAttribute('xlink:href') || img.getAttribute('href');
         
-        if (href && href.trim()) {
-            images.push({
-                element: img,
-                href: href,
-                login: img.getAttribute('data-tooltip-login') || 'Unknown',
-                id: img.getAttribute('id') || 'No ID',
-                width: parseFloat(img.getAttribute('width')) || 50,
-                height: parseFloat(img.getAttribute('height')) || 50
-            });
+        document.body.appendChild(btn);
+    }
+    
+    // Simple grid display
+    function showGrid() {
+        var images = document.querySelectorAll('image[href]');
+        if (images.length === 0) {
+            alert('No images found');
+            return;
         }
-    }
-
-    if (!images.length) {
-        alert(TEXTS.NO_IMAGES_FOUND);
-        return;
-    }
-
-    var existingGrid = document.getElementById('radiopatio-grid');
-    if (existingGrid) existingGrid.remove();
-    
-    var existingModal = document.getElementById('search-modal');
-    if (existingModal) existingModal.remove();
-    
-    var existingButtons = document.querySelectorAll('[data-radiopatio-button]');
-    for (var i = 0; i < existingButtons.length; i++) {
-        existingButtons[i].remove();
-    }
-
-    var currentFilter = 'all';
-    var gridContainer, titleElement, searchBtn, closeBtn;
-
-    var container = document.createElement('div');
-    container.id = 'radiopatio-grid';
-    container.style.cssText = 'position: fixed; top: 10px; left: 10px; right: 10px; bottom: 10px; background: #474b54; border: 2px solid #666; border-radius: 10px; padding: 0px 20px 10px 20px; z-index: 100000; overflow-y: auto; box-shadow: 0 4px 20px rgba(0,0,0,0.5);';
-
-    var filterContainer = document.createElement('div');
-    filterContainer.style.cssText = 'display: flex; justify-content: center; gap: 10px; margin-bottom: 15px; position: sticky; top: 0; padding: 10px 0; z-index: 100001; flex-wrap: wrap;';
-
-    function createFilterButton(text, filter) {
-        var button = document.createElement('button');
-        button.innerHTML = text;
-        button.setAttribute('data-filter', filter);
-        var activeStyle = filter === currentFilter ? 'background: #D8636F; color: #02807c;' : 'background: #3a3e47; color: #cccccc;';
-        button.style.cssText = 'padding: 8px 16px; border: 1px solid #666; border-radius: 6px; font-size: 14px; font-weight: bold; cursor: pointer; transition: all 0.3s ease; white-space: nowrap; ' + activeStyle;
-
-        button.onclick = function() {
-            currentFilter = filter;
-            updateButtonStyles();
-            updateGrid();
+        
+        // Remove existing grid
+        var existing = document.getElementById('simple-grid');
+        if (existing) {
+            existing.remove();
+            return;
+        }
+        
+        var container = document.createElement('div');
+        container.id = 'simple-grid';
+        container.style.position = 'fixed';
+        container.style.top = '10px';
+        container.style.left = '10px';
+        container.style.right = '10px';
+        container.style.bottom = '10px';
+        container.style.background = '#474b54';
+        container.style.border = '2px solid #666';
+        container.style.borderRadius = '10px';
+        container.style.padding = '20px';
+        container.style.zIndex = '100000';
+        container.style.overflow = 'auto';
+        
+        var title = document.createElement('h2');
+        title.textContent = 'Users: ' + images.length;
+        title.style.color = 'white';
+        title.style.textAlign = 'center';
+        title.style.margin = '0 0 20px 0';
+        
+        var closeBtn = document.createElement('button');
+        closeBtn.textContent = 'X';
+        closeBtn.style.position = 'absolute';
+        closeBtn.style.top = '10px';
+        closeBtn.style.right = '10px';
+        closeBtn.style.background = '#D8636F';
+        closeBtn.style.color = 'white';
+        closeBtn.style.border = 'none';
+        closeBtn.style.borderRadius = '50%';
+        closeBtn.style.width = '30px';
+        closeBtn.style.height = '30px';
+        closeBtn.style.cursor = 'pointer';
+        closeBtn.onclick = function() {
+            container.remove();
         };
-
-        return button;
-    }
-
-    var todoBtn = createFilterButton(TEXTS.ALL_BUTTON, 'all');
-    var clusterABtn = createFilterButton(TEXTS.CLUSTER_A_BUTTON, 'car');
-    var clusterBBtn = createFilterButton(TEXTS.CLUSTER_B_BUTTON, 'cbr');
-
-    filterContainer.appendChild(todoBtn);
-    filterContainer.appendChild(clusterABtn);
-    filterContainer.appendChild(clusterBBtn);
-
-    function updateButtonStyles() {
-        var buttons = [clusterABtn, clusterBBtn, todoBtn];
-        for (var i = 0; i < buttons.length; i++) {
-            var btn = buttons[i];
-            var btnFilter = btn.getAttribute('data-filter');
-            var isActive = btnFilter === currentFilter;
-
-            if (isActive) {
-                btn.style.background = '#D8636F';
-                btn.style.color = '#02807c';
-            } else {
-                btn.style.background = '#3a3e47';
-                btn.style.color = '#cccccc';
-            }
-        }
-    }
-
-    var title = document.createElement('div');
-    title.style.cssText = 'text-align: center; color: #ffffff; font-size: 18px; font-weight: bold; margin: 0 0 8px 0; padding: 5px 0; transition: opacity 0.3s ease;';
-    titleElement = title;
-
-    function updateTitle(filteredImages) {
-        var filterText = '';
-        var emoji = TEXTS.TITLE_USERS;
-
-        if (currentFilter === 'car') {
-            filterText = TEXTS.TITLE_CLUSTER_A;
-        } else if (currentFilter === 'cbr') {
-            filterText = TEXTS.TITLE_CLUSTER_B;
-        }
-
-        title.textContent = TEXTS.TITLE_PREFIX + ' ' + filteredImages.length + ' ' + emoji + filterText;
-    }
-
-    searchBtn = document.createElement('button');
-    searchBtn.textContent = 'Search';
-    searchBtn.setAttribute('data-radiopatio-button', 'search');
-    searchBtn.onclick = function() { showSearchModal(); };
-    searchBtn.style.cssText = 'position: fixed; top: 15px; left: 15px; z-index: 100002; background: #D8636F; color: #02807c; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 10px; font-weight: bold; cursor: pointer;';
-
-    closeBtn = document.createElement('button');
-    closeBtn.textContent = 'X';
-    closeBtn.setAttribute('data-radiopatio-button', 'close');
-    closeBtn.onclick = function() {
-        container.remove();
-        searchBtn.remove();
-        closeBtn.remove();
-        var modal = document.getElementById('search-modal');
-        if (modal) modal.remove();
-    };
-    closeBtn.style.cssText = 'position: fixed; top: 15px; right: 15px; z-index: 100002; background: #D8636F; color: #02807c; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 24px; font-weight: bold; cursor: pointer;';
-
-    var scrollTimeout;
-    container.addEventListener('scroll', function() {
-        clearTimeout(scrollTimeout);
-        scrollTimeout = setTimeout(function() {
-            title.style.opacity = container.scrollTop > 30 ? '0' : '1';
-        }, 16);
-    });
-
-    var grid = document.createElement('div');
-    grid.style.cssText = 'display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 15px; padding-top: 10px;';
-    gridContainer = grid;
-
-    function getFilteredImages() {
-        if (currentFilter === 'all') {
-            return images;
-        }
         
-        var filtered = [];
+        var grid = document.createElement('div');
+        grid.style.display = 'grid';
+        grid.style.gridTemplateColumns = 'repeat(auto-fill, minmax(200px, 1fr))';
+        grid.style.gap = '10px';
+        
         for (var i = 0; i < images.length; i++) {
             var img = images[i];
-            if (img.id.toLowerCase().indexOf(currentFilter.toLowerCase()) === 0) {
-                filtered.push(img);
+            var href = img.getAttribute('href');
+            var login = img.getAttribute('data-tooltip-login') || 'Unknown';
+            var id = img.getAttribute('id') || 'No ID';
+            
+            if (href) {
+                var card = document.createElement('div');
+                card.style.background = '#3a3e47';
+                card.style.border = '1px solid #666';
+                card.style.borderRadius = '5px';
+                card.style.padding = '10px';
+                card.style.textAlign = 'center';
+                
+                var image = document.createElement('img');
+                image.src = href;
+                image.style.width = '100px';
+                image.style.height = '100px';
+                image.style.objectFit = 'contain';
+                image.style.border = '1px solid #666';
+                image.style.borderRadius = '3px';
+                
+                var info = document.createElement('div');
+                info.style.color = 'white';
+                info.style.fontSize = '12px';
+                info.style.marginTop = '5px';
+                info.innerHTML = '<strong>' + login + '</strong><br>' + id;
+                
+                card.appendChild(image);
+                card.appendChild(info);
+                grid.appendChild(card);
             }
         }
-        return filtered;
+        
+        container.appendChild(title);
+        container.appendChild(closeBtn);
+        container.appendChild(grid);
+        document.body.appendChild(container);
     }
-
-    function createImageCard(imgData) {
-        var card = document.createElement('div');
-        card.className = 'radiopatio-card';
-        card.style.cssText = 'border: 1px solid #666; border-radius: 8px; padding: 15px; text-align: center; background: #3a3e47; box-shadow: 0 2px 5px rgba(0,0,0,0.3);';
-
-        var link = document.createElement('a');
-        if (imgData.login !== 'Unknown') {
-            link.href = 'https://profile-v3.intra.42.fr/users/' + imgData.login;
-            link.target = '_blank';
-            link.rel = 'noopener noreferrer';
-        } else {
-            link.href = '#';
-            link.style.pointerEvents = 'none';
-        }
-        link.style.cssText = 'text-decoration: none; display: block;';
-
-        var img = document.createElement('img');
-        img.src = imgData.href;
-        img.alt = imgData.login + "'s profile image";
-        img.loading = 'lazy';
-        img.style.cssText = 'width: ' + Math.min(imgData.width * 15, 600) + 'px; height: ' + Math.min(imgData.height * 15, 600) + 'px; object-fit: contain; border: 2px solid #666; border-radius: 4px; background: #2c2f36;';
-
-        img.onerror = function() {
-            img.style.display = 'none';
-            var error = document.createElement('div');
-            error.textContent = TEXTS.IMAGE_LOAD_ERROR;
-            error.style.cssText = 'color: #ff6b6b; font-size: 14px; padding: 20px;';
-            link.appendChild(error);
-        };
-
-        var info = document.createElement('div');
-        info.style.cssText = 'margin-top: 10px; font-size: 12px; color: #cccccc;';
-        info.innerHTML = '<strong style="font-size: 14px; color: #ffffff;">' + imgData.login + '</strong><br><big>' + imgData.id + '</big>';
-
-        link.appendChild(img);
-        card.appendChild(link);
-        card.appendChild(info);
-        return card;
-    }
-
-    function updateGrid() {
-        gridContainer.innerHTML = '';
-        var filteredImages = getFilteredImages();
-        updateTitle(filteredImages);
-
-        for (var i = 0; i < filteredImages.length; i++) {
-            var card = createImageCard(filteredImages[i]);
-            gridContainer.appendChild(card);
-        }
-
-        console.log('Radiopatio 42: Updated grid with ' + filteredImages.length + ' images (filter: ' + currentFilter + ')');
-    }
-
-    function showSearchModal() {
-        var existingModal = document.getElementById('search-modal');
-        if (existingModal) existingModal.remove();
-
-        var searchModal = document.createElement('div');
-        searchModal.id = 'search-modal';
-        searchModal.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 100003; display: flex; align-items: center; justify-content: center;';
-
-        var searchContent = document.createElement('div');
-        searchContent.style.cssText = 'background: #474b54; border: 2px solid #666; border-radius: 10px; padding: 30px; width: 400px; max-width: 90vw; position: relative; box-shadow: 0 4px 20px rgba(0,0,0,0.5);';
-
-        var searchTitle = document.createElement('h3');
-        searchTitle.textContent = TEXTS.SEARCH_MODAL_TITLE;
-        searchTitle.style.cssText = 'color: #ffffff; text-align: center; margin: 0 0 20px 0; font-size: 18px;';
-
-        var searchInput = document.createElement('input');
-        searchInput.type = 'text';
-        searchInput.placeholder = TEXTS.SEARCH_PLACEHOLDER;
-        searchInput.style.cssText = 'width: 100%; padding: 12px; border: 1px solid #666; border-radius: 6px; background: #3a3e47; color: #ffffff; font-size: 16px; box-sizing: border-box;';
-
-        var searchButton = document.createElement('button');
-        searchButton.textContent = TEXTS.SEARCH_BUTTON;
-        searchButton.style.cssText = 'width: 100%; margin-top: 15px; padding: 12px; background: #D8636F; color: #02807c; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer;';
-
-        var resultDiv = document.createElement('div');
-        resultDiv.style.cssText = 'margin-top: 20px;';
-
-        function performSearch() {
-            var searchTerm = searchInput.value.trim().toLowerCase();
-            if (!searchTerm) {
-                resultDiv.innerHTML = '<div style="color: #ff6b6b; text-align: center;">' + TEXTS.SEARCH_ERROR_EMPTY + '</div>';
-                return;
-            }
-
-            resultDiv.innerHTML = '';
-
-            var foundUser = null;
-            for (var i = 0; i < images.length; i++) {
-                if (images[i].login.toLowerCase() === searchTerm) {
-                    foundUser = images[i];
-                    break;
-                }
-            }
-
-            if (foundUser) {
-                var userCard = createImageCard(foundUser);
-                userCard.style.cssText += ' margin: 0 auto; max-width: 300px;';
-
-                var foundText = document.createElement('div');
-                foundText.textContent = TEXTS.SEARCH_FOUND;
-                foundText.style.cssText = 'color: #4ade80; text-align: center; margin-bottom: 15px; font-weight: bold; font-size: 16px;';
-
-                resultDiv.appendChild(foundText);
-                resultDiv.appendChild(userCard);
-            } else {
-                var notFoundText = document.createElement('div');
-                notFoundText.textContent = TEXTS.SEARCH_NOT_FOUND;
-                notFoundText.style.cssText = 'color: #ff6b6b; text-align: center; margin-bottom: 15px; font-weight: bold; font-size: 16px;';
-
-                var randomImageCard = document.createElement('div');
-                randomImageCard.style.cssText = 'border: 1px solid #666; border-radius: 8px; padding: 15px; text-align: center; background: #3a3e47; box-shadow: 0 2px 5px rgba(0,0,0,0.3); margin: 0 auto; max-width: 250px;';
-
-                var randomImg = document.createElement('img');
-                randomImg.src = 'https://picsum.photos/200?random=' + Date.now();
-                randomImg.alt = 'Random image';
-                randomImg.loading = 'lazy';
-                randomImg.style.cssText = 'width: 200px; height: 200px; object-fit: cover; border: 2px solid #666; border-radius: 4px;';
-
-                var randomInfo = document.createElement('div');
-                randomInfo.style.cssText = 'margin-top: 10px; font-size: 14px; color: #cccccc;';
-                randomInfo.innerHTML = '<strong style="color: #ffffff;">' + TEXTS.SEARCH_RANDOM_USER + '</strong><br><em>' + TEXTS.SEARCH_RANDOM_SUBTITLE + '</em>';
-
-                randomImageCard.appendChild(randomImg);
-                randomImageCard.appendChild(randomInfo);
-
-                resultDiv.appendChild(notFoundText);
-                resultDiv.appendChild(randomImageCard);
-            }
-        }
-
-        function closeSearchModal() {
-            searchModal.remove();
-        }
-
-        searchButton.onclick = performSearch;
-        searchInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                performSearch();
-            }
-        });
-
-        searchModal.addEventListener('click', function(e) {
-            if (e.target === searchModal) {
-                closeSearchModal();
-            }
-        });
-
-        var closeSearchBtn = document.createElement('button');
-        closeSearchBtn.textContent = 'X';
-        closeSearchBtn.onclick = closeSearchModal;
-        closeSearchBtn.style.cssText = 'position: absolute; top: 10px; right: 15px; background: none; border: none; color: #cccccc; font-size: 24px; cursor: pointer; padding: 0;';
-
-        function handleKeydown(e) {
-            if (e.key === 'Escape') {
-                closeSearchModal();
-                document.removeEventListener('keydown', handleKeydown);
-            }
-        }
-        document.addEventListener('keydown', handleKeydown);
-
-        searchContent.appendChild(closeSearchBtn);
-        searchContent.appendChild(searchTitle);
-        searchContent.appendChild(searchInput);
-        searchContent.appendChild(searchButton);
-        searchContent.appendChild(resultDiv);
-        searchModal.appendChild(searchContent);
-        document.body.appendChild(searchModal);
-
-        setTimeout(function() {
-            searchInput.focus();
-            searchInput.select();
-        }, 100);
-    }
-
-    container.appendChild(filterContainer);
-    container.appendChild(title);
-    container.appendChild(grid);
-    document.body.appendChild(container);
-    document.body.appendChild(closeBtn);
-    document.body.appendChild(searchBtn);
-
-    updateGrid();
-
-    console.log('Radiopatio 42: Initialized with ' + images.length + ' total images');
-}
-
-function initializeScript() {
-    if (isInClustersPage()) {
-        autoEnableSideBySide();
-    }
-
-    var baseButtonStyle = 'position: fixed; right: 20px; z-index: 99999; background: #474b54; border: 1px solid #666; border-radius: 10px; color: #02807c; background-color: #D8636F; font-weight: bold; cursor: pointer; box-shadow: 0 2px 10px rgba(0,0,0,0.3); transition: all 0.3s ease;';
-
-    var btn = document.createElement('button');
-
-    if (isInClustersPage()) {
-        btn.innerHTML = TEXTS.MAIN_BUTTON;
-        btn.onclick = showClustersGrid;
-
-        var sideBySideBtn = document.createElement('button');
-        sideBySideBtn.innerHTML = TEXTS.SIDEBYSIDE_BUTTON;
-        sideBySideBtn.onclick = makeTabPanesSideBySide;
-        sideBySideBtn.style.cssText = baseButtonStyle + 'bottom: 80px; padding: 5px 8px; font-size: 10px;';
-
-        sideBySideBtn.addEventListener('mouseenter', function() {
-            sideBySideBtn.style.transform = 'scale(1.05)';
-            sideBySideBtn.style.boxShadow = '0 4px 15px rgba(0,0,0,0.4)';
-        });
-
-        sideBySideBtn.addEventListener('mouseleave', function() {
-            sideBySideBtn.style.transform = 'scale(1)';
-            sideBySideBtn.style.boxShadow = '0 2px 10px rgba(0,0,0,0.3)';
-        });
-
-        document.body.appendChild(sideBySideBtn);
+    
+    // Wait for page to load then create button
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', createButton);
     } else {
-        btn.innerHTML = TEXTS.NAVIGATION_BUTTON;
-        btn.onclick = navigateToClusters;
+        createButton();
     }
-
-    btn.style.cssText = baseButtonStyle + 'bottom: 20px; padding: 10px 15px; font-size: 14px;';
-
-    btn.addEventListener('mouseenter', function() {
-        btn.style.transform = 'scale(1.05)';
-        btn.style.boxShadow = '0 4px 15px rgba(0,0,0,0.4)';
-    });
-
-    btn.addEventListener('mouseleave', function() {
-        btn.style.transform = 'scale(1)';
-        btn.style.boxShadow = '0 2px 10px rgba(0,0,0,0.3)';
-    });
-
-    document.body.appendChild(btn);
-
-    if (isInClustersPage()) {
-        var observer = new MutationObserver(function(mutations) {
-            for (var i = 0; i < mutations.length; i++) {
-                var mutation = mutations[i];
-                if (mutation.addedNodes.length > 0) {
-                    for (var j = 0; j < mutation.addedNodes.length; j++) {
-                        var node = mutation.addedNodes[j];
-                        if (node.nodeType === 1 && 
-                            ((node.classList && node.classList.contains('tab-content')) || 
-                             (node.querySelector && node.querySelector('.tab-content')))) {
-                            if (!sideBySideActive) {
-                                makeTabPanesSideBySide();
-                            }
-                        }
-                    }
-                }
-            }
-        });
-        observer.observe(document.body, {
-            childList: true,
-            subtree: true
-        });
-    }
-}
-
-if (isInClustersPage()) {
-    autoEnableSideBySide();
-}
-
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function() {
-        if (isInClustersPage()) {
-            autoEnableSideBySide();
-        }
-    });
-} else {
-    if (isInClustersPage()) {
-        autoEnableSideBySide();
-    }
-}
-
-initializeScript();
-
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initializeScript);
-} else {
-    setTimeout(initializeScript, 100);
-}
+    
+})();
