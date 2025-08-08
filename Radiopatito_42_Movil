@@ -1,10 +1,10 @@
 // ==UserScript==
 // @name        Radiopatito 42 - Phone
 // @namespace   Violentmonkey Scripts
-// @match       https://*.intra.42.fr/*
+// @match       https://meta.intra.42.fr/clusters*
 // @version     42.4.2
 // @author      you
-// @description Boooooooooooooooooooooooored - Versión movil con navegacion
+// @description Boooooooooooooooooooooooored - Versión movil sin favoritos
 // ==/UserScript==
 
 console.log('Radiopatio 42 Clean loaded!');
@@ -15,7 +15,6 @@ console.log('Radiopatio 42 Clean loaded!');
 const TEXTS = {
     // Botones principales / Main buttons
     MAIN_BUTTON: 'Lo mismo pero <span style="font-size: 22px;">grande</span>',
-    NAVIGATION_BUTTON: 'Ir a <span style="font-size: 22px;">Clusters</span>',
     ALL_BUTTON: 'Todo 42',
     CLUSTER_A_BUTTON: 'Clúster A',
     CLUSTER_B_BUTTON: 'Clúster B',
@@ -42,450 +41,425 @@ const TEXTS = {
 };
 
 // ═══════════════════════════════════════════════════════════════════
-// 🧭 DETECCIÓN DE PÁGINA / PAGE DETECTION
-// ═══════════════════════════════════════════════════════════════════
-const isInClustersPage = () => {
-    return window.location.hostname === 'meta.intra.42.fr' &&
-           (window.location.pathname.includes('/clusters') ||
-            window.location.href.includes('/clusters'));
-};
-
-// ═══════════════════════════════════════════════════════════════════
-// 🧭 FUNCIÓN DE NAVEGACIÓN / NAVIGATION FUNCTION
-// ═══════════════════════════════════════════════════════════════════
-const navigateToClusters = () => {
-    window.location.href = 'https://meta.intra.42.fr/clusters';
-};
-
-// ═══════════════════════════════════════════════════════════════════
 // 🎯 FUNCIÓN PRINCIPAL / MAIN FUNCTION
 // ═══════════════════════════════════════════════════════════════════
 setTimeout(() => {
     // Create main button
     const btn = document.createElement('button');
-    
-    // Detectar si estamos en la página de clusters
-    if (isInClustersPage()) {
-        // Estamos en clusters - botón original
-        btn.innerHTML = TEXTS.MAIN_BUTTON;
-        btn.onclick = () => {
-            // Find images
-            const images = Array.from(document.querySelectorAll('image[*|href]')).map(img => ({
-                element: img,
-                href: img.getAttributeNS('http://www.w3.org/1999/xlink', 'href') ||
-                      img.getAttribute('xlink:href') || img.getAttribute('href'),
-                login: img.getAttribute('data-tooltip-login') || 'Unknown',
-                id: img.getAttribute('id') || 'No ID',
-                width: parseFloat(img.getAttribute('width')) || 50,
-                height: parseFloat(img.getAttribute('height')) || 50
-            })).filter(img => img.href?.trim());
-
-            if (!images.length) {
-                alert(TEXTS.NO_IMAGES_FOUND);
-                return;
-            }
-
-            // Remove existing grid and modals
-            document.getElementById('radiopatio-grid')?.remove();
-            document.getElementById('search-modal')?.remove();
-            document.querySelectorAll('[data-radiopatio-button]').forEach(btn => btn.remove());
-
-            // State management
-            let currentFilter = 'all';
-            let gridContainer, titleElement, searchBtn, closeBtn;
-
-            // Create main container
-            const container = document.createElement('div');
-            container.id = 'radiopatio-grid';
-            container.style.cssText = `
-                position: fixed; top: 10px; left: 10px; right: 10px; bottom: 10px;
-                background: #474b54; border: 2px solid #666; border-radius: 10px;
-                padding: 0px 20px 10px 20px; z-index: 100000; overflow-y: auto;
-                box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-            `;
-
-            // Create filter buttons container
-            const filterContainer = document.createElement('div');
-            filterContainer.style.cssText = `
-                display: flex; justify-content: center; gap: 10px; margin-bottom: 15px;
-                position: sticky; top: 0; padding: 10px 0; z-index: 100001;
-                flex-wrap: wrap;
-            `;
-
-            // Create filter buttons
-            const createFilterButton = (text, filter) => {
-                const button = document.createElement('button');
-                button.innerHTML = text;
-                button.setAttribute('data-filter', filter);
-                button.style.cssText = `
-                    padding: 8px 16px; border: 1px solid #666; border-radius: 6px;
-                    font-size: 14px; font-weight: bold; cursor: pointer;
-                    transition: all 0.3s ease; white-space: nowrap;
-                    ${filter === currentFilter ? 'background: #D8636F; color: #02807c;' : 'background: #3a3e47; color: #cccccc;'}
-                `;
-
-                button.onclick = () => {
-                    currentFilter = filter;
-                    updateButtonStyles();
-                    updateGrid();
-                };
-
-                return button;
-            };
-
-            const todoBtn = createFilterButton(TEXTS.ALL_BUTTON, 'all');
-            const clusterABtn = createFilterButton(TEXTS.CLUSTER_A_BUTTON, 'car');
-            const clusterBBtn = createFilterButton(TEXTS.CLUSTER_B_BUTTON, 'cbr');
-
-            filterContainer.appendChild(todoBtn);
-            filterContainer.appendChild(clusterABtn);
-            filterContainer.appendChild(clusterBBtn);
-
-            // Update button styles based on current filter
-            const updateButtonStyles = () => {
-                [clusterABtn, clusterBBtn, todoBtn].forEach(btn => {
-                    const btnFilter = btn.getAttribute('data-filter');
-                    const isActive = btnFilter === currentFilter;
-
-                    if (isActive) {
-                        btn.style.background = '#D8636F';
-                        btn.style.color = '#02807c';
-                    } else {
-                        btn.style.background = '#3a3e47';
-                        btn.style.color = '#cccccc';
-                    }
-                });
-            };
-
-            // Create title
-            const title = document.createElement('div');
-            title.style.cssText = `
-                text-align: center; color: #ffffff; font-size: 18px; font-weight: bold;
-                margin: 0 0 8px 0; padding: 5px 0; transition: opacity 0.3s ease;
-            `;
-            titleElement = title;
-
-            // Function to update title based on filter
-            const updateTitle = (filteredImages) => {
-                let filterText = '';
-
-                if (currentFilter === 'car') {
-                    filterText = TEXTS.TITLE_CLUSTER_A;
-                } else if (currentFilter === 'cbr') {
-                    filterText = TEXTS.TITLE_CLUSTER_B;
-                }
-
-                title.textContent = `${TEXTS.TITLE_PREFIX} ${filteredImages.length} ${TEXTS.TITLE_USERS}${filterText}`;
-            };
-
-            // Create search button
-            searchBtn = document.createElement('button');
-            searchBtn.textContent = '🔍';
-            searchBtn.setAttribute('data-radiopatio-button', 'search');
-            searchBtn.onclick = () => showSearchModal();
-            searchBtn.style.cssText = `
-                position: fixed; top: 15px; left: 15px; z-index: 100002;
-                background: #D8636F; color: #02807c; border: none; border-radius: 50%;
-                width: 40px; height: 40px; font-size: 20px; font-weight: bold; cursor: pointer;
-            `;
-
-            // Create close button
-            closeBtn = document.createElement('button');
-            closeBtn.textContent = '×';
-            closeBtn.setAttribute('data-radiopatio-button', 'close');
-            closeBtn.onclick = () => {
-                container.remove();
-                searchBtn.remove();
-                closeBtn.remove();
-                document.getElementById('search-modal')?.remove();
-            };
-            closeBtn.style.cssText = `
-                position: fixed; top: 15px; right: 15px; z-index: 100002;
-                background: #D8636F; color: #02807c; border: none; border-radius: 50%;
-                width: 40px; height: 40px; font-size: 24px; font-weight: bold; cursor: pointer;
-            `;
-
-            // Hide title when scrolling
-            let scrollTimeout;
-            container.addEventListener('scroll', () => {
-                clearTimeout(scrollTimeout);
-                scrollTimeout = setTimeout(() => {
-                    title.style.opacity = container.scrollTop > 30 ? '0' : '1';
-                }, 16);
-            });
-
-            // Create image grid
-            const grid = document.createElement('div');
-            grid.style.cssText = `
-                display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-                gap: 15px; padding-top: 10px;
-            `;
-            gridContainer = grid;
-
-            // Function to filter images based on current filter
-            const getFilteredImages = () => {
-                if (currentFilter === 'all') {
-                    return images;
-                }
-                return images.filter(imgData => imgData.id.toLowerCase().startsWith(currentFilter.toLowerCase()));
-            };
-
-            // Function to create image card
-            const createImageCard = (imgData) => {
-                const { href, login, id, width, height } = imgData;
-
-                const card = document.createElement('div');
-                card.className = 'radiopatio-card';
-                card.style.cssText = `
-                    border: 1px solid #666; border-radius: 8px; padding: 15px;
-                    text-align: center; background: #3a3e47; box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-                `;
-
-                const link = document.createElement('a');
-                if (login !== 'Unknown') {
-                    link.href = `https://profile-v3.intra.42.fr/users/${login}`;
-                    link.target = '_blank';
-                    link.rel = 'noopener noreferrer';
-                } else {
-                    link.href = '#';
-                    link.style.pointerEvents = 'none';
-                }
-                link.style.cssText = 'text-decoration: none; display: block;';
-
-                const img = document.createElement('img');
-                img.src = href;
-                img.alt = `${login}'s profile image`;
-                img.loading = 'lazy';
-                img.style.cssText = `
-                    width: ${Math.min(width * 15, 600)}px; height: ${Math.min(height * 15, 600)}px;
-                    object-fit: contain; border: 2px solid #666; border-radius: 4px;
-                    background: #2c2f36;
-                `;
-
-                img.onerror = () => {
-                    img.style.display = 'none';
-                    const error = document.createElement('div');
-                    error.textContent = TEXTS.IMAGE_LOAD_ERROR;
-                    error.style.cssText = 'color: #ff6b6b; font-size: 14px; padding: 20px;';
-                    link.appendChild(error);
-                };
-
-                const info = document.createElement('div');
-                info.style.cssText = 'margin-top: 10px; font-size: 12px; color: #cccccc;';
-                info.innerHTML = `
-                    <strong style="font-size: 14px; color: #ffffff;">👉 ${login} 👈</strong><br>
-                    <big>🖥️ ${id} 🖥️</big>
-                `;
-
-                link.appendChild(img);
-                card.appendChild(link);
-                card.appendChild(info);
-                return card;
-            };
-
-            // Function to update grid based on current filter
-            const updateGrid = () => {
-                gridContainer.innerHTML = '';
-
-                const filteredImages = getFilteredImages();
-                updateTitle(filteredImages);
-
-                const fragment = document.createDocumentFragment();
-                filteredImages.forEach(imgData => {
-                    const card = createImageCard(imgData);
-                    fragment.appendChild(card);
-                });
-                gridContainer.appendChild(fragment);
-
-                console.log(`Radiopatio 42: Updated grid with ${filteredImages.length} images (filter: ${currentFilter})`);
-            };
-
-            // Function to show search modal
-            const showSearchModal = () => {
-                document.getElementById('search-modal')?.remove();
-
-                const searchModal = document.createElement('div');
-                searchModal.id = 'search-modal';
-                searchModal.style.cssText = `
-                    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-                    background: rgba(0,0,0,0.8); z-index: 100003;
-                    display: flex; align-items: center; justify-content: center;
-                `;
-
-                const searchContent = document.createElement('div');
-                searchContent.style.cssText = `
-                    background: #474b54; border: 2px solid #666; border-radius: 10px;
-                    padding: 30px; width: 400px; max-width: 90vw; position: relative;
-                    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-                `;
-
-                const searchTitle = document.createElement('h3');
-                searchTitle.textContent = TEXTS.SEARCH_MODAL_TITLE;
-                searchTitle.style.cssText = `
-                    color: #ffffff; text-align: center; margin: 0 0 20px 0;
-                    font-size: 18px;
-                `;
-
-                const searchInput = document.createElement('input');
-                searchInput.type = 'text';
-                searchInput.placeholder = TEXTS.SEARCH_PLACEHOLDER;
-                searchInput.style.cssText = `
-                    width: 100%; padding: 12px; border: 1px solid #666;
-                    border-radius: 6px; background: #3a3e47; color: #ffffff;
-                    font-size: 16px; box-sizing: border-box;
-                `;
-
-                const searchButton = document.createElement('button');
-                searchButton.textContent = TEXTS.SEARCH_BUTTON;
-                searchButton.style.cssText = `
-                    width: 100%; margin-top: 15px; padding: 12px;
-                    background: #D8636F; color: #02807c; border: none;
-                    border-radius: 6px; font-size: 16px; font-weight: bold;
-                    cursor: pointer;
-                `;
-
-                const resultDiv = document.createElement('div');
-                resultDiv.style.cssText = 'margin-top: 20px;';
-
-                const performSearch = () => {
-                    const searchTerm = searchInput.value.trim().toLowerCase();
-                    if (!searchTerm) {
-                        resultDiv.innerHTML = `<div style="color: #ff6b6b; text-align: center;">${TEXTS.SEARCH_ERROR_EMPTY}</div>`;
-                        return;
-                    }
-
-                    resultDiv.innerHTML = '';
-
-                    const foundUser = images.find(img =>
-                        img.login.toLowerCase() === searchTerm
-                    );
-
-                    if (foundUser) {
-                        const userCard = createImageCard(foundUser);
-                        userCard.style.cssText += ' margin: 0 auto; max-width: 300px;';
-
-                        const foundText = document.createElement('div');
-                        foundText.textContent = TEXTS.SEARCH_FOUND;
-                        foundText.style.cssText = `
-                            color: #4ade80; text-align: center; margin-bottom: 15px;
-                            font-weight: bold; font-size: 16px;
-                        `;
-
-                        resultDiv.appendChild(foundText);
-                        resultDiv.appendChild(userCard);
-                    } else {
-                        const notFoundText = document.createElement('div');
-                        notFoundText.textContent = TEXTS.SEARCH_NOT_FOUND;
-                        notFoundText.style.cssText = `
-                            color: #ff6b6b; text-align: center; margin-bottom: 15px;
-                            font-weight: bold; font-size: 16px;
-                        `;
-
-                        const randomImageCard = document.createElement('div');
-                        randomImageCard.style.cssText = `
-                            border: 1px solid #666; border-radius: 8px; padding: 15px;
-                            text-align: center; background: #3a3e47; box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-                            margin: 0 auto; max-width: 250px;
-                        `;
-
-                        const randomImg = document.createElement('img');
-                        randomImg.src = `https://picsum.photos/200?random=${Date.now()}`;
-                        randomImg.alt = 'Random image';
-                        randomImg.loading = 'lazy';
-                        randomImg.style.cssText = `
-                            width: 200px; height: 200px; object-fit: cover;
-                            border: 2px solid #666; border-radius: 4px;
-                        `;
-
-                        const randomInfo = document.createElement('div');
-                        randomInfo.style.cssText = 'margin-top: 10px; font-size: 14px; color: #cccccc;';
-                        randomInfo.innerHTML = `
-                            <strong style="color: #ffffff;">${TEXTS.SEARCH_RANDOM_USER}</strong><br>
-                            <em>${TEXTS.SEARCH_RANDOM_SUBTITLE}</em>
-                        `;
-
-                        randomImageCard.appendChild(randomImg);
-                        randomImageCard.appendChild(randomInfo);
-
-                        resultDiv.appendChild(notFoundText);
-                        resultDiv.appendChild(randomImageCard);
-                    }
-                };
-
-                const closeSearchModal = () => {
-                    searchModal.remove();
-                };
-
-                searchButton.onclick = performSearch;
-                searchInput.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') {
-                        e.preventDefault();
-                        performSearch();
-                    }
-                });
-
-                searchModal.addEventListener('click', (e) => {
-                    if (e.target === searchModal) {
-                        closeSearchModal();
-                    }
-                });
-
-                const closeSearchBtn = document.createElement('button');
-                closeSearchBtn.textContent = '×';
-                closeSearchBtn.onclick = closeSearchModal;
-                closeSearchBtn.style.cssText = `
-                    position: absolute; top: 10px; right: 15px;
-                    background: none; border: none; color: #cccccc;
-                    font-size: 24px; cursor: pointer; padding: 0;
-                `;
-
-                const handleKeydown = (e) => {
-                    if (e.key === 'Escape') {
-                        closeSearchModal();
-                        document.removeEventListener('keydown', handleKeydown);
-                    }
-                };
-                document.addEventListener('keydown', handleKeydown);
-
-                searchContent.appendChild(closeSearchBtn);
-                searchContent.appendChild(searchTitle);
-                searchContent.appendChild(searchInput);
-                searchContent.appendChild(searchButton);
-                searchContent.appendChild(resultDiv);
-                searchModal.appendChild(searchContent);
-                document.body.appendChild(searchModal);
-
-                setTimeout(() => {
-                    searchInput.focus();
-                    searchInput.select();
-                }, 100);
-            };
-
-            // Build initial UI
-            container.appendChild(filterContainer);
-            container.appendChild(title);
-            container.appendChild(grid);
-            document.body.appendChild(container);
-            document.body.appendChild(closeBtn);
-            document.body.appendChild(searchBtn);
-
-            // Initialize with all images
-            updateGrid();
-
-            console.log(`Radiopatio 42: Initialized with ${images.length} total images`);
-        };
-    } else {
-        // Estamos en otra página - botón de navegación
-        btn.innerHTML = TEXTS.NAVIGATION_BUTTON;
-        btn.onclick = navigateToClusters;
-    }
-    
+    btn.innerHTML = TEXTS.MAIN_BUTTON;
     btn.style.cssText = `
         position: fixed; bottom: 20px; right: 20px; z-index: 99999;
         background: #474b54; border: 1px solid #666; border-radius: 10px; padding: 10px 15px;
         color: #02807c; background-color: #D8636F; font-size: 14px; font-weight: bold;
         cursor: pointer; box-shadow: 0 2px 10px rgba(0,0,0,0.3);
     `;
+
+    btn.onclick = () => {
+        // Find images
+        const images = Array.from(document.querySelectorAll('image[*|href]')).map(img => ({
+            element: img,
+            href: img.getAttributeNS('http://www.w3.org/1999/xlink', 'href') ||
+                  img.getAttribute('xlink:href') || img.getAttribute('href'),
+            login: img.getAttribute('data-tooltip-login') || 'Unknown',
+            id: img.getAttribute('id') || 'No ID',
+            width: parseFloat(img.getAttribute('width')) || 50,
+            height: parseFloat(img.getAttribute('height')) || 50
+        })).filter(img => img.href?.trim());
+
+        if (!images.length) {
+            alert(TEXTS.NO_IMAGES_FOUND);
+            return;
+        }
+
+        // Remove existing grid and modals
+        document.getElementById('radiopatio-grid')?.remove();
+        document.getElementById('search-modal')?.remove();
+        document.querySelectorAll('[data-radiopatio-button]').forEach(btn => btn.remove());
+
+        // State management
+        let currentFilter = 'all';
+        let gridContainer, titleElement, searchBtn, closeBtn;
+
+        // Create main container
+        const container = document.createElement('div');
+        container.id = 'radiopatio-grid';
+        container.style.cssText = `
+            position: fixed; top: 10px; left: 10px; right: 10px; bottom: 10px;
+            background: #474b54; border: 2px solid #666; border-radius: 10px;
+            padding: 0px 20px 10px 20px; z-index: 100000; overflow-y: auto;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        `;
+
+        // Create filter buttons container
+        const filterContainer = document.createElement('div');
+        filterContainer.style.cssText = `
+            display: flex; justify-content: center; gap: 10px; margin-bottom: 15px;
+            position: sticky; top: 0; padding: 10px 0; z-index: 100001;
+            flex-wrap: wrap;
+        `;
+
+        // Create filter buttons
+        const createFilterButton = (text, filter) => {
+            const button = document.createElement('button');
+            button.innerHTML = text;
+            button.setAttribute('data-filter', filter);
+            button.style.cssText = `
+                padding: 8px 16px; border: 1px solid #666; border-radius: 6px;
+                font-size: 14px; font-weight: bold; cursor: pointer;
+                transition: all 0.3s ease; white-space: nowrap;
+                ${filter === currentFilter ? 'background: #D8636F; color: #02807c;' : 'background: #3a3e47; color: #cccccc;'}
+            `;
+
+            button.onclick = () => {
+                currentFilter = filter;
+                updateButtonStyles();
+                updateGrid();
+            };
+
+            return button;
+        };
+
+        const todoBtn = createFilterButton(TEXTS.ALL_BUTTON, 'all');
+        const clusterABtn = createFilterButton(TEXTS.CLUSTER_A_BUTTON, 'car');
+        const clusterBBtn = createFilterButton(TEXTS.CLUSTER_B_BUTTON, 'cbr');
+
+        filterContainer.appendChild(todoBtn);
+        filterContainer.appendChild(clusterABtn);
+        filterContainer.appendChild(clusterBBtn);
+
+        // Update button styles based on current filter
+        const updateButtonStyles = () => {
+            [clusterABtn, clusterBBtn, todoBtn].forEach(btn => {
+                const btnFilter = btn.getAttribute('data-filter');
+                const isActive = btnFilter === currentFilter;
+
+                if (isActive) {
+                    btn.style.background = '#D8636F';
+                    btn.style.color = '#02807c';
+                } else {
+                    btn.style.background = '#3a3e47';
+                    btn.style.color = '#cccccc';
+                }
+            });
+        };
+
+        // Create title
+        const title = document.createElement('div');
+        title.style.cssText = `
+            text-align: center; color: #ffffff; font-size: 18px; font-weight: bold;
+            margin: 0 0 8px 0; padding: 5px 0; transition: opacity 0.3s ease;
+        `;
+        titleElement = title;
+
+        // Function to update title based on filter
+        const updateTitle = (filteredImages) => {
+            let filterText = '';
+
+            if (currentFilter === 'car') {
+                filterText = TEXTS.TITLE_CLUSTER_A;
+            } else if (currentFilter === 'cbr') {
+                filterText = TEXTS.TITLE_CLUSTER_B;
+            }
+
+            title.textContent = `${TEXTS.TITLE_PREFIX} ${filteredImages.length} ${TEXTS.TITLE_USERS}${filterText}`;
+        };
+
+        // Create search button
+        searchBtn = document.createElement('button');
+        searchBtn.textContent = '🔍';
+        searchBtn.setAttribute('data-radiopatio-button', 'search');
+        searchBtn.onclick = () => showSearchModal();
+        searchBtn.style.cssText = `
+            position: fixed; top: 15px; left: 15px; z-index: 100002;
+            background: #D8636F; color: #02807c; border: none; border-radius: 50%;
+            width: 40px; height: 40px; font-size: 20px; font-weight: bold; cursor: pointer;
+        `;
+
+        // Create close button
+        closeBtn = document.createElement('button');
+        closeBtn.textContent = '×';
+        closeBtn.setAttribute('data-radiopatio-button', 'close');
+        closeBtn.onclick = () => {
+            container.remove();
+            searchBtn.remove();
+            closeBtn.remove();
+            document.getElementById('search-modal')?.remove();
+        };
+        closeBtn.style.cssText = `
+            position: fixed; top: 15px; right: 15px; z-index: 100002;
+            background: #D8636F; color: #02807c; border: none; border-radius: 50%;
+            width: 40px; height: 40px; font-size: 24px; font-weight: bold; cursor: pointer;
+        `;
+
+        // Hide title when scrolling
+        let scrollTimeout;
+        container.addEventListener('scroll', () => {
+            clearTimeout(scrollTimeout);
+            scrollTimeout = setTimeout(() => {
+                title.style.opacity = container.scrollTop > 30 ? '0' : '1';
+            }, 16);
+        });
+
+        // Create image grid
+        const grid = document.createElement('div');
+        grid.style.cssText = `
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px; padding-top: 10px;
+        `;
+        gridContainer = grid;
+
+        // Function to filter images based on current filter
+        const getFilteredImages = () => {
+            if (currentFilter === 'all') {
+                return images;
+            }
+            return images.filter(imgData => imgData.id.toLowerCase().startsWith(currentFilter.toLowerCase()));
+        };
+
+        // Function to create image card
+        const createImageCard = (imgData) => {
+            const { href, login, id, width, height } = imgData;
+
+            const card = document.createElement('div');
+            card.className = 'radiopatio-card';
+            card.style.cssText = `
+                border: 1px solid #666; border-radius: 8px; padding: 15px;
+                text-align: center; background: #3a3e47; box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            `;
+
+            const link = document.createElement('a');
+            if (login !== 'Unknown') {
+                link.href = `https://profile-v3.intra.42.fr/users/${login}`;
+                link.target = '_blank';
+                link.rel = 'noopener noreferrer';
+            } else {
+                link.href = '#';
+                link.style.pointerEvents = 'none';
+            }
+            link.style.cssText = 'text-decoration: none; display: block;';
+
+            const img = document.createElement('img');
+            img.src = href;
+            img.alt = `${login}'s profile image`;
+            img.loading = 'lazy';
+            img.style.cssText = `
+                width: ${Math.min(width * 15, 600)}px; height: ${Math.min(height * 15, 600)}px;
+                object-fit: contain; border: 2px solid #666; border-radius: 4px;
+                background: #2c2f36;
+            `;
+
+            img.onerror = () => {
+                img.style.display = 'none';
+                const error = document.createElement('div');
+                error.textContent = TEXTS.IMAGE_LOAD_ERROR;
+                error.style.cssText = 'color: #ff6b6b; font-size: 14px; padding: 20px;';
+                link.appendChild(error);
+            };
+
+            const info = document.createElement('div');
+            info.style.cssText = 'margin-top: 10px; font-size: 12px; color: #cccccc;';
+            info.innerHTML = `
+                <strong style="font-size: 14px; color: #ffffff;">👉 ${login} 👈</strong><br>
+                <big>🖥️ ${id} 🖥️</big>
+            `;
+
+            link.appendChild(img);
+            card.appendChild(link);
+            card.appendChild(info);
+            return card;
+        };
+
+        // Function to update grid based on current filter
+        const updateGrid = () => {
+            gridContainer.innerHTML = '';
+
+            const filteredImages = getFilteredImages();
+            updateTitle(filteredImages);
+
+            const fragment = document.createDocumentFragment();
+            filteredImages.forEach(imgData => {
+                const card = createImageCard(imgData);
+                fragment.appendChild(card);
+            });
+            gridContainer.appendChild(fragment);
+
+            console.log(`Radiopatio 42: Updated grid with ${filteredImages.length} images (filter: ${currentFilter})`);
+        };
+
+        // Function to show search modal
+        const showSearchModal = () => {
+            document.getElementById('search-modal')?.remove();
+
+            const searchModal = document.createElement('div');
+            searchModal.id = 'search-modal';
+            searchModal.style.cssText = `
+                position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+                background: rgba(0,0,0,0.8); z-index: 100003;
+                display: flex; align-items: center; justify-content: center;
+            `;
+
+            const searchContent = document.createElement('div');
+            searchContent.style.cssText = `
+                background: #474b54; border: 2px solid #666; border-radius: 10px;
+                padding: 30px; width: 400px; max-width: 90vw; position: relative;
+                box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            `;
+
+            const searchTitle = document.createElement('h3');
+            searchTitle.textContent = TEXTS.SEARCH_MODAL_TITLE;
+            searchTitle.style.cssText = `
+                color: #ffffff; text-align: center; margin: 0 0 20px 0;
+                font-size: 18px;
+            `;
+
+            const searchInput = document.createElement('input');
+            searchInput.type = 'text';
+            searchInput.placeholder = TEXTS.SEARCH_PLACEHOLDER;
+            searchInput.style.cssText = `
+                width: 100%; padding: 12px; border: 1px solid #666;
+                border-radius: 6px; background: #3a3e47; color: #ffffff;
+                font-size: 16px; box-sizing: border-box;
+            `;
+
+            const searchButton = document.createElement('button');
+            searchButton.textContent = TEXTS.SEARCH_BUTTON;
+            searchButton.style.cssText = `
+                width: 100%; margin-top: 15px; padding: 12px;
+                background: #D8636F; color: #02807c; border: none;
+                border-radius: 6px; font-size: 16px; font-weight: bold;
+                cursor: pointer;
+            `;
+
+            const resultDiv = document.createElement('div');
+            resultDiv.style.cssText = 'margin-top: 20px;';
+
+            const performSearch = () => {
+                const searchTerm = searchInput.value.trim().toLowerCase();
+                if (!searchTerm) {
+                    resultDiv.innerHTML = `<div style="color: #ff6b6b; text-align: center;">${TEXTS.SEARCH_ERROR_EMPTY}</div>`;
+                    return;
+                }
+
+                resultDiv.innerHTML = '';
+
+                const foundUser = images.find(img =>
+                    img.login.toLowerCase() === searchTerm
+                );
+
+                if (foundUser) {
+                    const userCard = createImageCard(foundUser);
+                    userCard.style.cssText += ' margin: 0 auto; max-width: 300px;';
+
+                    const foundText = document.createElement('div');
+                    foundText.textContent = TEXTS.SEARCH_FOUND;
+                    foundText.style.cssText = `
+                        color: #4ade80; text-align: center; margin-bottom: 15px;
+                        font-weight: bold; font-size: 16px;
+                    `;
+
+                    resultDiv.appendChild(foundText);
+                    resultDiv.appendChild(userCard);
+                } else {
+                    const notFoundText = document.createElement('div');
+                    notFoundText.textContent = TEXTS.SEARCH_NOT_FOUND;
+                    notFoundText.style.cssText = `
+                        color: #ff6b6b; text-align: center; margin-bottom: 15px;
+                        font-weight: bold; font-size: 16px;
+                    `;
+
+                    const randomImageCard = document.createElement('div');
+                    randomImageCard.style.cssText = `
+                        border: 1px solid #666; border-radius: 8px; padding: 15px;
+                        text-align: center; background: #3a3e47; box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+                        margin: 0 auto; max-width: 250px;
+                    `;
+
+                    const randomImg = document.createElement('img');
+                    randomImg.src = `https://picsum.photos/200?random=${Date.now()}`;
+                    randomImg.alt = 'Random image';
+                    randomImg.loading = 'lazy';
+                    randomImg.style.cssText = `
+                        width: 200px; height: 200px; object-fit: cover;
+                        border: 2px solid #666; border-radius: 4px;
+                    `;
+
+                    const randomInfo = document.createElement('div');
+                    randomInfo.style.cssText = 'margin-top: 10px; font-size: 14px; color: #cccccc;';
+                    randomInfo.innerHTML = `
+                        <strong style="color: #ffffff;">${TEXTS.SEARCH_RANDOM_USER}</strong><br>
+                        <em>${TEXTS.SEARCH_RANDOM_SUBTITLE}</em>
+                    `;
+
+                    randomImageCard.appendChild(randomImg);
+                    randomImageCard.appendChild(randomInfo);
+
+                    resultDiv.appendChild(notFoundText);
+                    resultDiv.appendChild(randomImageCard);
+                }
+            };
+
+            const closeSearchModal = () => {
+                searchModal.remove();
+            };
+
+            searchButton.onclick = performSearch;
+            searchInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    performSearch();
+                }
+            });
+
+            searchModal.addEventListener('click', (e) => {
+                if (e.target === searchModal) {
+                    closeSearchModal();
+                }
+            });
+
+            const closeSearchBtn = document.createElement('button');
+            closeSearchBtn.textContent = '×';
+            closeSearchBtn.onclick = closeSearchModal;
+            closeSearchBtn.style.cssText = `
+                position: absolute; top: 10px; right: 15px;
+                background: none; border: none; color: #cccccc;
+                font-size: 24px; cursor: pointer; padding: 0;
+            `;
+
+            const handleKeydown = (e) => {
+                if (e.key === 'Escape') {
+                    closeSearchModal();
+                    document.removeEventListener('keydown', handleKeydown);
+                }
+            };
+            document.addEventListener('keydown', handleKeydown);
+
+            searchContent.appendChild(closeSearchBtn);
+            searchContent.appendChild(searchTitle);
+            searchContent.appendChild(searchInput);
+            searchContent.appendChild(searchButton);
+            searchContent.appendChild(resultDiv);
+            searchModal.appendChild(searchContent);
+            document.body.appendChild(searchModal);
+
+            setTimeout(() => {
+                searchInput.focus();
+                searchInput.select();
+            }, 100);
+        };
+
+        // Build initial UI
+        container.appendChild(filterContainer);
+        container.appendChild(title);
+        container.appendChild(grid);
+        document.body.appendChild(container);
+        document.body.appendChild(closeBtn);
+        document.body.appendChild(searchBtn);
+
+        // Initialize with all images
+        updateGrid();
+
+        console.log(`Radiopatio 42: Initialized with ${images.length} total images`);
+    };
 
     document.body.appendChild(btn);
 }, 1000);
