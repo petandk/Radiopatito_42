@@ -1,253 +1,8 @@
-setTimeout(() => {
-                searchInput.focus();
-                searchInput.select();
-            }, 100);
-        };
-
-        // Function to show add favorite modal
-        const showAddFavoriteModal = () => {
-            document.getElementById('favorites-modal')?.remove();
-
-            const modal = document.createElement('div');
-            modal.id = 'favorites-modal';
-            modal.style.cssText = `
-                position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-                background: rgba(0,0,0,0.8); z-index: 100003;
-                display: flex; align-items: center; justify-content: center;
-            `;
-
-            const content = document.createElement('div');
-            content.style.cssText = `
-                background: #474b54; border: 2px solid #666; border-radius: 10px;
-                padding: 30px; width: 450px; max-width: 90vw; position: relative;
-                box-shadow: 0 4px 20px rgba(0,0,0,0.5); max-height: 80vh; overflow-y: auto;
-            `;
-
-            const titleElem = document.createElement('h3');
-            titleElem.textContent = TEXTS.REMOVE_MODAL_TITLE;
-            titleElem.style.cssText = `
-                color: #ffffff; text-align: center; margin: 0 0 20px 0;
-                font-size: 18px;
-            `;
-
-            const subtitle = document.createElement('p');
-            subtitle.textContent = TEXTS.REMOVE_MODAL_SUBTITLE;
-            subtitle.style.cssText = `
-                color: #cccccc; text-align: center; margin: 0 0 20px 0;
-                font-size: 14px;
-            `;
-
-            const checkboxContainer = document.createElement('div');
-            checkboxContainer.style.cssText = 'margin-bottom: 20px;';
-
-            const checkboxes = [];
-            favorites.forEach((login, index) => {
-                const checkboxDiv = document.createElement('div');
-                checkboxDiv.style.cssText = `
-                    display: flex; align-items: center; margin-bottom: 12px;
-                    padding: 8px; border-radius: 4px; background: #3a3e47;
-                `;
-
-                const checkbox = document.createElement('input');
-                checkbox.type = 'checkbox';
-                checkbox.id = `fav-${index}`;
-                checkbox.value = login;
-                checkbox.checked = false;
-                checkbox.style.cssText = `
-                    margin-right: 10px; width: 18px; height: 18px;
-                `;
-
-                const label = document.createElement('label');
-                label.htmlFor = `fav-${index}`;
-                label.textContent = `❤️‍🔥 ${login}`;
-                label.style.cssText = `
-                    color: #ffffff; font-size: 16px; cursor: pointer;
-                    flex-grow: 1;
-                `;
-
-                checkboxes.push(checkbox);
-                checkboxDiv.appendChild(checkbox);
-                checkboxDiv.appendChild(label);
-                checkboxContainer.appendChild(checkboxDiv);
-            });
-
-            const divorceButton = document.createElement('button');
-            divorceButton.textContent = TEXTS.REMOVE_MODAL_BUTTON;
-            divorceButton.style.cssText = `
-                width: 100%; padding: 12px; background: #f87171; color: #7f1d1d;
-                border: none; border-radius: 6px; font-size: 16px; font-weight: bold;
-                cursor: pointer;
-            `;
-
-            const performDivorce = () => {
-                const toRemove = checkboxes
-                    .filter(cb => cb.checked)
-                    .map(cb => cb.value);
-
-                if (toRemove.length === 0) {
-                    alert(TEXTS.REMOVE_NO_SELECTION);
-                    return;
-                }
-
-                const confirmMsg = TEXTS.REMOVE_CONFIRM.replace('{users}', toRemove.join(', '));
-                if (confirm(confirmMsg)) {
-                    removeFavorites(toRemove);
-                    alert(TEXTS.REMOVE_SUCCESS.replace('{users}', toRemove.join(', ')));
-                    modal.remove();
-                    updateGrid();
-                }
-            };
-
-            const closeModal = () => modal.remove();
-
-            divorceButton.onclick = performDivorce;
-            modal.addEventListener('click', (e) => {
-                if (e.target === modal) closeModal();
-            });
-
-            const closeBtn = document.createElement('button');
-            closeBtn.textContent = '×';
-            closeBtn.onclick = closeModal;
-            closeBtn.style.cssText = `
-                position: absolute; top: 10px; right: 15px;
-                background: none; border: none; color: #cccccc;
-                font-size: 24px; cursor: pointer; padding: 0;
-            `;
-
-            content.appendChild(closeBtn);
-            content.appendChild(titleElem);
-            content.appendChild(subtitle);
-            content.appendChild(checkboxContainer);
-            content.appendChild(divorceButton);
-            modal.appendChild(content);
-            document.body.appendChild(modal);
-        };
-
-        // Assign click handlers for favorites buttons
-        addPanaBtn.onclick = () => showAddFavoriteModal();
-        divorceBtn.onclick = () => showRemoveFavoritesModal();
-
-        // Build initial UI
-        container.appendChild(filterContainer);
-        container.appendChild(title);
-        container.appendChild(favControlsContainer);
-        container.appendChild(grid);
-        document.body.appendChild(container);
-        document.body.appendChild(closeBtn);
-        document.body.appendChild(searchBtn);px; width: 400px; max-width: 90vw; position: relative;
-                box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-            `;
-
-            const titleElem = document.createElement('h3');
-            titleElem.textContent = TEXTS.ADD_MODAL_TITLE;
-            titleElem.style.cssText = `
-                color: #ffffff; text-align: center; margin: 0 0 20px 0;
-                font-size: 18px;
-            `;
-
-            const input = document.createElement('input');
-            input.type = 'text';
-            input.placeholder = TEXTS.ADD_MODAL_PLACEHOLDER;
-            input.style.cssText = `
-                width: 100%; padding: 12px; border: 1px solid #666;
-                border-radius: 6px; background: #3a3e47; color: #ffffff;
-                font-size: 16px; box-sizing: border-box;
-            `;
-
-            const addButton = document.createElement('button');
-            addButton.textContent = TEXTS.ADD_MODAL_BUTTON;
-            addButton.style.cssText = `
-                width: 100%; margin-top: 15px; padding: 12px;
-                background: #4ade80; color: #065f46; border: none;
-                border-radius: 6px; font-size: 16px; font-weight: bold;
-                cursor: pointer;
-            `;
-
-            const resultDiv = document.createElement('div');
-            resultDiv.style.cssText = 'margin-top: 15px; text-align: center;';
-
-            const performAdd = () => {
-                const login = input.value.trim();
-                if (!login) {
-                    resultDiv.innerHTML = `<div style="color: #ff6b6b;">${TEXTS.ADD_ERROR_EMPTY}</div>`;
-                    return;
-                }
-
-                const success = addFavorite(login);
-                if (success) {
-                    resultDiv.innerHTML = `<div style="color: #4ade80;">${TEXTS.ADD_SUCCESS.replace('{login}', login)}</div>`;
-                    input.value = '';
-                    setTimeout(() => {
-                        modal.remove();
-                        updateGrid();
-                    }, 1500);
-                } else {
-                    resultDiv.innerHTML = `<div style="color: #fbbf24;">${TEXTS.ADD_ALREADY_EXISTS.replace('{login}', login)}</div>`;
-                }
-            };
-
-            const closeModal = () => modal.remove();
-
-            addButton.onclick = performAdd;
-            input.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    performAdd();
-                }
-            });
-
-            modal.addEventListener('click', (e) => {
-                if (e.target === modal) closeModal();
-            });
-
-            const closeBtn = document.createElement('button');
-            closeBtn.textContent = '×';
-            closeBtn.onclick = closeModal;
-            closeBtn.style.cssText = `
-                position: absolute; top: 10px; right: 15px;
-                background: none; border: none; color: #cccccc;
-                font-size: 24px; cursor: pointer; padding: 0;
-            `;
-
-            content.appendChild(closeBtn);
-            content.appendChild(titleElem);
-            content.appendChild(input);
-            content.appendChild(addButton);
-            content.appendChild(resultDiv);
-            modal.appendChild(content);
-            document.body.appendChild(modal);
-
-            setTimeout(() => {
-                input.focus();
-            }, 100);
-        };
-
-        // Function to show remove favorites modal
-        const showRemoveFavoritesModal = () => {
-            const favorites = getFavorites();
-            if (favorites.length === 0) {
-                alert(TEXTS.REMOVE_NO_FAVORITES);
-                return;
-            }
-
-            document.getElementById('favorites-modal')?.remove();
-
-            const modal = document.createElement('div');
-            modal.id = 'favorites-modal';
-            modal.style.cssText = `
-                position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-                background: rgba(0,0,0,0.8); z-index: 100003;
-                display: flex; align-items: center; justify-content: center;
-            `;
-
-            const content = document.createElement('div');
-            content.style.cssText = `
-                background: #474b54; border: 2px solid #666; border-radius: 10px;
-                padding: 30// ==UserScript==
+// ==UserScript==
 // @name        Radiopatito 42 - Phone
 // @namespace   Violentmonkey Scripts
-// @match       https://*.intra.42.fr/*
-// @version     42.4.3
+// @match       https://meta.intra.42.fr/clusters*
+// @version     42.4.2
 // @author      you
 // @description Boooooooooooooooooooooooored - Versión movil sin favoritos
 // ==/UserScript==
@@ -260,40 +15,15 @@ console.log('Radiopatio 42 Clean loaded!');
 const TEXTS = {
     // Botones principales / Main buttons
     MAIN_BUTTON: 'Lo mismo pero <span style="font-size: 22px;">grande</span>',
-    NAVIGATION_BUTTON: 'Ir a <span style="font-size: 22px;">Clusters</span>',
     ALL_BUTTON: 'Todo 42',
     CLUSTER_A_BUTTON: 'Clúster A',
     CLUSTER_B_BUTTON: 'Clúster B',
-    FAVORITES_BUTTON: '❤️‍🔥 Los panas ❤️‍🔥',
 
     // Títulos dinámicos / Dynamic titles
     TITLE_USERS: '👨‍💻 patitos 👩‍💻',
-    TITLE_FAVORITES: '❤️‍🔥 panas ❤️‍🔥',
-    TITLE_FAVORITES_ONLINE: '💚 conectados 💚',
     TITLE_CLUSTER_A: ' en Clúster A',
     TITLE_CLUSTER_B: ' en Clúster B',
     TITLE_PREFIX: 'Habemos',
-
-    // Botones de favoritos / Favorites buttons
-    ADD_FAVORITE: '➕ Añadir pana ➕',
-    REMOVE_FAVORITES: '💔 Divorcio 💔',
-
-    // Modal de añadir favorito / Add favorite modal
-    ADD_MODAL_TITLE: '❤️‍🔥 Añadir nuevo pana ❤️‍🔥',
-    ADD_MODAL_PLACEHOLDER: '¿Cómo se llama tu pana? (login)',
-    ADD_MODAL_BUTTON: '❤️ Añadir a los panas ❤️',
-    ADD_SUCCESS: '¡{login} añadido a los panas! ❤️‍🔥',
-    ADD_ALREADY_EXISTS: '{login} ya está en los panas 😊',
-    ADD_ERROR_EMPTY: 'Por favor introduce un login válido 🐣',
-
-    // Modal de eliminar favoritos / Remove favorites modal
-    REMOVE_MODAL_TITLE: '💔 Divorcio de panas 💔',
-    REMOVE_MODAL_SUBTITLE: 'Marca los panas de los que te quieres divorciar',
-    REMOVE_MODAL_BUTTON: '💔 Confirmar divorcios 💔',
-    REMOVE_NO_SELECTION: 'No has seleccionado ningún divorcio 😊',
-    REMOVE_CONFIRM: '¿Estás seguro de que quieres divorciarte de: {users}? 💔',
-    REMOVE_SUCCESS: 'Divorcios completados: {users} 💔',
-    REMOVE_NO_FAVORITES: 'No tienes panas para divorciar 💔',
 
     // Modal de búsqueda / Search modal
     SEARCH_MODAL_TITLE: '🔍 Buscar Patito 🔍',
@@ -305,70 +35,9 @@ const TEXTS = {
     SEARCH_RANDOM_USER: '🤷‍♂️ Usuario desconocido 🤷‍♀️',
     SEARCH_RANDOM_SUBTITLE: 'Imagen aleatoria de consolación',
 
-    // Estados de usuario / User states
-    USER_OFFLINE: '🔌 Offline 🔌',
-    USER_OFFLINE_MESSAGE: '❤️‍🔥 Tu pana está offline ❤️‍🔥',
-    USER_SLEEPING: '💤 {login} 💤',
-
     // Errores / Errors
     NO_IMAGES_FOUND: 'No images found!',
     IMAGE_LOAD_ERROR: 'Image failed to load'
-};
-
-// ═══════════════════════════════════════════════════════════════════
-// 🧭 DETECCIÓN DE PÁGINA / PAGE DETECTION
-// ═══════════════════════════════════════════════════════════════════
-const isInClustersPage = () => {
-    return window.location.hostname === 'meta.intra.42.fr' &&
-           (window.location.pathname.includes('/clusters') ||
-            window.location.href.includes('/clusters'));
-};
-
-// ═══════════════════════════════════════════════════════════════════
-// 🧭 FUNCIÓN DE NAVEGACIÓN / NAVIGATION FUNCTION
-// ═══════════════════════════════════════════════════════════════════
-const navigateToClusters = () => {
-    window.location.href = 'https://meta.intra.42.fr/clusters';
-};
-
-// ═══════════════════════════════════════════════════════════════════
-// 💾 GESTIÓN DE FAVORITOS / FAVORITES MANAGEMENT
-// ═══════════════════════════════════════════════════════════════════
-const FAVORITES_KEY = 'radiopatio_favorites';
-
-const getFavorites = () => {
-    try {
-        const favs = localStorage.getItem(FAVORITES_KEY) || '[]';
-        return JSON.parse(favs);
-    } catch (e) {
-        console.warn('Error loading favorites:', e);
-        return [];
-    }
-};
-
-const saveFavorites = (favorites) => {
-    try {
-        localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites));
-        console.log('Favorites saved:', favorites);
-    } catch (e) {
-        console.error('Error saving favorites:', e);
-    }
-};
-
-const addFavorite = (login) => {
-    const favorites = getFavorites();
-    if (!favorites.includes(login.toLowerCase())) {
-        favorites.push(login.toLowerCase());
-        saveFavorites(favorites);
-        return true;
-    }
-    return false;
-};
-
-const removeFavorites = (loginsToRemove) => {
-    const favorites = getFavorites();
-    const newFavorites = favorites.filter(fav => !loginsToRemove.includes(fav));
-    saveFavorites(newFavorites);
 };
 
 // ═══════════════════════════════════════════════════════════════════
@@ -377,18 +46,7 @@ const removeFavorites = (loginsToRemove) => {
 setTimeout(() => {
     // Create main button
     const btn = document.createElement('button');
-    
-    // Detectar si estamos en la página de clusters
-    if (isInClustersPage()) {
-        // Estamos en clusters - botón original
-        btn.innerHTML = TEXTS.MAIN_BUTTON;
-        btn.onclick = showClustersGrid;
-    } else {
-        // Estamos en otra página - botón de navegación
-        btn.innerHTML = TEXTS.NAVIGATION_BUTTON;
-        btn.onclick = navigateToClusters;
-    }
-    
+    btn.innerHTML = TEXTS.MAIN_BUTTON;
     btn.style.cssText = `
         position: fixed; bottom: 20px; right: 20px; z-index: 99999;
         background: #474b54; border: 1px solid #666; border-radius: 10px; padding: 10px 15px;
@@ -396,7 +54,7 @@ setTimeout(() => {
         cursor: pointer; box-shadow: 0 2px 10px rgba(0,0,0,0.3);
     `;
 
-    function showClustersGrid() {
+    btn.onclick = () => {
         // Find images
         const images = Array.from(document.querySelectorAll('image[*|href]')).map(img => ({
             element: img,
@@ -441,7 +99,7 @@ setTimeout(() => {
         `;
 
         // Create filter buttons
-        const createFilterButton = (text, filter, isSpecial = false) => {
+        const createFilterButton = (text, filter) => {
             const button = document.createElement('button');
             button.innerHTML = text;
             button.setAttribute('data-filter', filter);
@@ -449,9 +107,7 @@ setTimeout(() => {
                 padding: 8px 16px; border: 1px solid #666; border-radius: 6px;
                 font-size: 14px; font-weight: bold; cursor: pointer;
                 transition: all 0.3s ease; white-space: nowrap;
-                ${filter === currentFilter ?
-                    (isSpecial ? 'background: #ff69b4; color: #ffffff;' : 'background: #D8636F; color: #02807c;') :
-                    'background: #3a3e47; color: #cccccc;'}
+                ${filter === currentFilter ? 'background: #D8636F; color: #02807c;' : 'background: #3a3e47; color: #cccccc;'}
             `;
 
             button.onclick = () => {
@@ -466,23 +122,20 @@ setTimeout(() => {
         const todoBtn = createFilterButton(TEXTS.ALL_BUTTON, 'all');
         const clusterABtn = createFilterButton(TEXTS.CLUSTER_A_BUTTON, 'car');
         const clusterBBtn = createFilterButton(TEXTS.CLUSTER_B_BUTTON, 'cbr');
-        const favoritesBtn = createFilterButton(TEXTS.FAVORITES_BUTTON, 'favorites', true);
 
         filterContainer.appendChild(todoBtn);
         filterContainer.appendChild(clusterABtn);
         filterContainer.appendChild(clusterBBtn);
-        filterContainer.appendChild(favoritesBtn);
 
         // Update button styles based on current filter
         const updateButtonStyles = () => {
-            [clusterABtn, clusterBBtn, todoBtn, favoritesBtn].forEach(btn => {
+            [clusterABtn, clusterBBtn, todoBtn].forEach(btn => {
                 const btnFilter = btn.getAttribute('data-filter');
                 const isActive = btnFilter === currentFilter;
-                const isSpecial = btnFilter === 'favorites';
 
                 if (isActive) {
-                    btn.style.background = isSpecial ? '#ff69b4' : '#D8636F';
-                    btn.style.color = isSpecial ? '#ffffff' : '#02807c';
+                    btn.style.background = '#D8636F';
+                    btn.style.color = '#02807c';
                 } else {
                     btn.style.background = '#3a3e47';
                     btn.style.color = '#cccccc';
@@ -501,28 +154,14 @@ setTimeout(() => {
         // Function to update title based on filter
         const updateTitle = (filteredImages) => {
             let filterText = '';
-            let emoji = TEXTS.TITLE_USERS;
 
             if (currentFilter === 'car') {
                 filterText = TEXTS.TITLE_CLUSTER_A;
             } else if (currentFilter === 'cbr') {
                 filterText = TEXTS.TITLE_CLUSTER_B;
-            } else if (currentFilter === 'favorites') {
-                emoji = TEXTS.TITLE_FAVORITES;
-
-                // Contar panas conectados (no offline)
-                const onlinePanas = filteredImages.filter(img => !img.isOffline).length;
-
-                // Crear el texto con el formato: "Habemos X ❤️‍🔥 panas ❤️‍🔥 (Y 💚 conectados 💚)"
-                if (onlinePanas > 0) {
-                    title.textContent = `${TEXTS.TITLE_PREFIX} ${filteredImages.length} ${emoji} (${onlinePanas} ${TEXTS.TITLE_FAVORITES_ONLINE})`;
-                } else {
-                    title.textContent = `${TEXTS.TITLE_PREFIX} ${filteredImages.length} ${emoji}`;
-                }
-                return; // Salir temprano para favorites
             }
 
-            title.textContent = `${TEXTS.TITLE_PREFIX} ${filteredImages.length} ${emoji}${filterText}`;
+            title.textContent = `${TEXTS.TITLE_PREFIX} ${filteredImages.length} ${TEXTS.TITLE_USERS}${filterText}`;
         };
 
         // Create search button
@@ -561,32 +200,6 @@ setTimeout(() => {
             }, 16);
         });
 
-        // Create favorites controls container
-        const favControlsContainer = document.createElement('div');
-        favControlsContainer.style.cssText = `
-            display: none; justify-content: center; gap: 15px; margin-bottom: 20px;
-            padding: 15px; border-bottom: 1px solid #666;
-        `;
-
-        const addPanaBtn = document.createElement('button');
-        addPanaBtn.innerHTML = TEXTS.ADD_FAVORITE;
-        addPanaBtn.style.cssText = `
-            padding: 10px 20px; background: #4ade80; color: #065f46;
-            border: none; border-radius: 6px; font-weight: bold;
-            cursor: pointer; font-size: 14px; transition: all 0.3s ease;
-        `;
-
-        const divorceBtn = document.createElement('button');
-        divorceBtn.innerHTML = TEXTS.REMOVE_FAVORITES;
-        divorceBtn.style.cssText = `
-            padding: 10px 20px; background: #f87171; color: #7f1d1d;
-            border: none; border-radius: 6px; font-weight: bold;
-            cursor: pointer; font-size: 14px; transition: all 0.3s ease;
-        `;
-
-        favControlsContainer.appendChild(addPanaBtn);
-        favControlsContainer.appendChild(divorceBtn);
-
         // Create image grid
         const grid = document.createElement('div');
         grid.style.cssText = `
@@ -599,49 +212,19 @@ setTimeout(() => {
         const getFilteredImages = () => {
             if (currentFilter === 'all') {
                 return images;
-            } else if (currentFilter === 'favorites') {
-                const favorites = getFavorites();
-                const favoriteImages = [];
-
-                favorites.forEach(favLogin => {
-                    const onlineUser = images.find(img =>
-                        img.login.toLowerCase() === favLogin.toLowerCase()
-                    );
-
-                    if (onlineUser) {
-                        favoriteImages.push(onlineUser);
-                    } else {
-                        favoriteImages.push({
-                            href: `https://picsum.photos/300/300?random=${favLogin}`,
-                            login: favLogin,
-                            id: TEXTS.USER_OFFLINE,
-                            width: 20,
-                            height: 20,
-                            isOffline: true
-                        });
-                    }
-                });
-
-                // Ordenar: conectados primero, luego offline
-                return favoriteImages.sort((a, b) => {
-                    if (a.isOffline && !b.isOffline) return 1;  // a offline va después
-                    if (!a.isOffline && b.isOffline) return -1; // a online va antes
-                    return 0; // mantener orden original si ambos tienen el mismo estado
-                });
             }
             return images.filter(imgData => imgData.id.toLowerCase().startsWith(currentFilter.toLowerCase()));
         };
 
         // Function to create image card
         const createImageCard = (imgData) => {
-            const { href, login, id, width, height, isOffline } = imgData;
+            const { href, login, id, width, height } = imgData;
 
             const card = document.createElement('div');
             card.className = 'radiopatio-card';
             card.style.cssText = `
                 border: 1px solid #666; border-radius: 8px; padding: 15px;
                 text-align: center; background: #3a3e47; box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-                ${isOffline ? 'border-color: #ff69b4; background: #4a3847;' : ''}
             `;
 
             const link = document.createElement('a');
@@ -662,7 +245,7 @@ setTimeout(() => {
             img.style.cssText = `
                 width: ${Math.min(width * 15, 600)}px; height: ${Math.min(height * 15, 600)}px;
                 object-fit: contain; border: 2px solid #666; border-radius: 4px;
-                background: #2c2f36; ${isOffline ? 'opacity: 0.7; filter: grayscale(20%);' : ''}
+                background: #2c2f36;
             `;
 
             img.onerror = () => {
@@ -675,19 +258,10 @@ setTimeout(() => {
 
             const info = document.createElement('div');
             info.style.cssText = 'margin-top: 10px; font-size: 12px; color: #cccccc;';
-
-            if (isOffline) {
-                info.innerHTML = `
-                    <strong style="font-size: 14px; color: #ff69b4;">${TEXTS.USER_SLEEPING.replace('{login}', login)}</strong><br>
-                    <big>${id}</big><br>
-                    <small style="color: #ff69b4;">${TEXTS.USER_OFFLINE_MESSAGE}</small>
-                `;
-            } else {
-                info.innerHTML = `
-                    <strong style="font-size: 14px; color: #ffffff;">👉 ${login} 👈</strong><br>
-                    <big>🖥️ ${id} 🖥️</big>
-                `;
-            }
+            info.innerHTML = `
+                <strong style="font-size: 14px; color: #ffffff;">👉 ${login} 👈</strong><br>
+                <big>🖥️ ${id} 🖥️</big>
+            `;
 
             link.appendChild(img);
             card.appendChild(link);
@@ -698,13 +272,6 @@ setTimeout(() => {
         // Function to update grid based on current filter
         const updateGrid = () => {
             gridContainer.innerHTML = '';
-
-            // Show/hide favorites controls
-            if (currentFilter === 'favorites') {
-                favControlsContainer.style.display = 'flex';
-            } else {
-                favControlsContainer.style.display = 'none';
-            }
 
             const filteredImages = getFilteredImages();
             updateTitle(filteredImages);
@@ -886,13 +453,13 @@ setTimeout(() => {
         container.appendChild(grid);
         document.body.appendChild(container);
         document.body.appendChild(closeBtn);
-        container.appendChild(searchBtn);
+        document.body.appendChild(searchBtn);
 
         // Initialize with all images
         updateGrid();
 
         console.log(`Radiopatio 42: Initialized with ${images.length} total images`);
-    }
+    };
 
     document.body.appendChild(btn);
 }, 1000);
